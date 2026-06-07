@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Civil;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -35,12 +35,16 @@ class DashboardController extends Controller
             'Ngambang' => $statusCounts['Ngambang'] ?? 0,
             'Lawan' => $statusCounts['Lawan'] ?? 0,
         ];
+
         return view('pages.dashboard.dashboard', $data);
     }
 
     private function calculatePercentage($current, $previous)
     {
-        if ($previous == 0) return $current > 0 ? 100 : 0;
+        if ($previous == 0) {
+            return $current > 0 ? 100 : 0;
+        }
+
         return (($current - $previous) / $previous) * 100;
     }
 }

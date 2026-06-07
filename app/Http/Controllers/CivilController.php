@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Civil;
-use App\Http\Resources\CivilResource;
 use App\Exports\CivilsExport;
+use App\Http\Resources\CivilResource;
 use App\Imports\CivilsImport;
+use App\Models\Civil;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CivilController extends Controller
@@ -36,22 +36,22 @@ class CivilController extends Controller
     {
         // 1. Validasi Input Form
         $validated = $request->validate([
-            'nik'           => 'required|numeric|digits:16|unique:civils,nik', // NIK harus 16 digit & unik
-            'name'          => 'required|string|max:255',
-            'hamlet'        => 'nullable|string|max:255',
+            'nik' => 'required|numeric|digits:16|unique:civils,nik', // NIK harus 16 digit & unik
+            'name' => 'required|string|max:255',
+            'hamlet' => 'nullable|string|max:255',
             'location_type' => 'required|in:village,housing',
-            'rt'            => 'required|string|max:5',
-            'rw'            => 'required|string|max:5',
-            'address'       => 'required|string',
+            'rt' => 'required|string|max:5',
+            'rw' => 'required|string|max:5',
+            'address' => 'required|string',
             'date_of_birth' => 'required|date',
-            'gender'        => 'required|in:L,P',
-            'status'        => 'required|in:Militan,Ngambang,Lawan'
+            'gender' => 'required|in:L,P',
+            'status' => 'required|in:Militan,Ngambang,Lawan',
         ], [
             // Custom pesan error bahasa Indonesia biar user ramah bacanya
-            'nik.unique'   => 'NIK sudah terdaftar dalam sistem!',
-            'nik.digits'   => 'NIK harus tepat berisikan 16 digit angka.',
-            'nik.numeric'  => 'NIK hanya boleh berupa angka.',
-            'required'     => 'Kolom :attribute wajib diisi!'
+            'nik.unique' => 'NIK sudah terdaftar dalam sistem!',
+            'nik.digits' => 'NIK harus tepat berisikan 16 digit angka.',
+            'nik.numeric' => 'NIK hanya boleh berupa angka.',
+            'required' => 'Kolom :attribute wajib diisi!',
         ]);
 
         // 2. Simpan Data ke Database menggunakan Eloquent
@@ -64,6 +64,7 @@ class CivilController extends Controller
     public function edit(int $id)
     {
         $civil = Civil::findOrFail($id);
+
         // Karena kita pakai modal berbasis API/AJAX biar gak reload halaman, kita return JSON
         return response()->json($civil);
     }
@@ -73,16 +74,16 @@ class CivilController extends Controller
         $civil = Civil::findOrFail($id);
 
         $validated = $request->validate([
-            'nik'           => 'required|numeric|digits:16|unique:civils,nik,' . $id, // Abaikan NIK milik dia sendiri saat validasi unik
-            'name'          => 'required|string|max:255',
-            'hamlet'        => 'nullable|string|max:255',
+            'nik' => 'required|numeric|digits:16|unique:civils,nik,'.$id, // Abaikan NIK milik dia sendiri saat validasi unik
+            'name' => 'required|string|max:255',
+            'hamlet' => 'nullable|string|max:255',
             'location_type' => 'required|in:village,housing',
-            'rt'            => 'required|string|max:5',
-            'rw'            => 'required|string|max:5',
-            'address'       => 'required|string',
+            'rt' => 'required|string|max:5',
+            'rw' => 'required|string|max:5',
+            'address' => 'required|string',
             'date_of_birth' => 'required|date',
-            'gender'        => 'required|in:L,P',
-            'status'        => 'required|in:Militan,Ngambang,Lawan'
+            'gender' => 'required|in:L,P',
+            'status' => 'required|in:Militan,Ngambang,Lawan',
         ]);
 
         $civil->update($validated);
@@ -103,14 +104,14 @@ class CivilController extends Controller
         // Validasi bahwa 'ids' harus ada dan merupakan array
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'integer'
+            'ids.*' => 'integer',
         ]);
 
         Civil::whereIn('id', $request->ids, 'and', false)->delete();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Data terpilih berhasil dihapus'
+            'message' => 'Data terpilih berhasil dihapus',
         ]);
     }
 
@@ -132,10 +133,12 @@ class CivilController extends Controller
         try {
             set_time_limit(0);
             Excel::import(new CivilsImport, $file);
+
             return back()->with('success', 'Data berhasil diimpor!');
         } catch (\Exception $e) {
-            dd("gagal", $e);
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            dd('gagal', $e);
+
+            return back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
 }
