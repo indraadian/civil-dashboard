@@ -188,7 +188,7 @@
                 <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
                     <div>
                         <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                            @if (auth()->user()->role === 'Admin')
+                            @if (auth()->user()->role === 'admin')
                                 <div class="col-span-2 lg:col-span-1">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                         NIK <span class="text-red-500">*</span>
@@ -265,7 +265,7 @@
                                     <option value="housing" class="dark:bg-gray-900">Housing (Perumahan)</option>
                                 </select>
                             </div>
-                            @if (auth()->user()->role === 'Admin')
+                            @if (auth()->user()->role === 'admin')
                                 <div class="col-span-2">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                         Alamat <span class="text-red-500">*</span>
