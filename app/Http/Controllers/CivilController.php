@@ -7,6 +7,7 @@ use App\Http\Resources\CivilResource;
 use App\Imports\CivilsImport;
 use App\Models\Civil;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CivilController extends Controller
@@ -72,20 +73,28 @@ class CivilController extends Controller
     public function update(Request $request, int $id)
     {
         $civil = Civil::findOrFail($id);
-
-        $validated = $request->validate([
-            'nik' => 'required|numeric|digits:16|unique:civils,nik,'.$id, // Abaikan NIK milik dia sendiri saat validasi unik
-            'name' => 'required|string|max:255',
-            'hamlet' => 'nullable|string|max:255',
-            'location_type' => 'required|in:village,housing',
-            'rt' => 'required|string|max:5',
-            'rw' => 'required|string|max:5',
-            'address' => 'required|string',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:L,P',
-            'status' => 'required|in:Militan,Ngambang,Lawan',
-        ]);
-
+        $guard = Auth::guard('web');
+        $user = $guard->user();
+        if ($user->role === 'Admin') {
+            $validated = $request->validate([
+                'nik' => 'required|numeric|digits:16|unique:civils,nik,'.$id,
+                'name' => 'required|string|max:255',
+                'hamlet' => 'nullable|string|max:255',
+                'location_type' => 'required|in:village,housing',
+                'rt' => 'required|string|max:5',
+                'rw' => 'required|string|max:5',
+                'address' => 'required|string',
+                'date_of_birth' => 'required|date',
+                'gender' => 'required|in:L,P',
+                'status' => 'required|in:Militan,Ngambang,Lawan',
+            ]);
+        } else {
+            $validated = $request->validate([
+                'hamlet' => 'nullable|string|max:255',
+                'location_type' => 'required|in:village,housing',
+                'status' => 'required|in:Militan,Ngambang,Lawan',
+            ]);
+        }
         $civil->update($validated);
 
         return redirect()->route('civils')->with('success', 'Data warga berhasil diperbarui!');
@@ -136,8 +145,6 @@ class CivilController extends Controller
 
             return back()->with('success', 'Data berhasil diimpor!');
         } catch (\Exception $e) {
-            dd('gagal', $e);
-
             return back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }

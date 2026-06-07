@@ -18,12 +18,12 @@ Route::get('/create-admin', [AuthController::class, 'createAdminUser'])->name('c
 Route::middleware(['auth'])->group(function () {
     Route::get('/civils', [CivilController::class, 'index'])->name('civils');
     Route::get('/civils/data', [CivilController::class, 'data'])->name('api.civils.data');
+    Route::get('/civils/{id}/edit', [CivilController::class, 'edit'])->name('civils.edit');
+    Route::put('/civils/{id}', [CivilController::class, 'update'])->name('civils.update');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/civils/create', [CivilController::class, 'create'])->name('civils.create');
         Route::post('/civils', [CivilController::class, 'store'])->name('civils.store');
-        Route::get('/civils/{id}/edit', [CivilController::class, 'edit'])->name('civils.edit');
-        Route::put('/civils/{id}', [CivilController::class, 'update'])->name('civils.update');
         Route::delete('/civils/{id}', [CivilController::class, 'destroy'])->name('civils.destroy');
         Route::post('/civils/delete-bulk', [CivilController::class, 'destroyBulk'])->name('civils.destroyBulk');
         Route::get('/civils/export', [CivilController::class, 'export'])->name('civils.export');

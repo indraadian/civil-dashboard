@@ -128,7 +128,7 @@
                     avatarBg: civil.location_type === 'housing' ? 'bg-blue-100' : 'bg-green-50',
                     avatarColor: civil.location_type === 'housing' ? 'text-blue-500' : 'text-green-600',
                     locationType: civil.location_type,
-                    location: civil.location_type === 'housing' ? 'Housing' : 'Village',
+                    location: civil.location_type === 'housing' ? 'Perumahan' : 'Kampung',
                     status: civil.status
                 }));
                 this.currentPage = data.meta.current_page;
@@ -230,17 +230,17 @@
                         </svg>
                         Impor
                     </button>
+                    <button @click="$dispatch('open-civil-modal')"
+                        class="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300">
+                        <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z"
+                                fill=""></path>
+                        </svg>
+                        Tambah
+                    </button>
                 @endif
-                <button @click="$dispatch('open-civil-modal')"
-                    class="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300">
-                    <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                            d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z"
-                            fill=""></path>
-                    </svg>
-                    Tambah
-                </button>
             </div>
         </div>
 
@@ -250,22 +250,24 @@
                 <thead
                     class="px-6 py-3.5 border-t border-gray-100 border-y bg-gray-50 dark:border-white/[0.05] dark:bg-gray-900">
                     <tr>
-                        <th
-                            class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
-                            <div class="flex items-center gap-3">
-                                <div @click="handleSelectAll()"
-                                    class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border-[1.25px]"
-                                    :class="selectAll ? 'border-blue-500 dark:border-blue-500 bg-blue-500' :
-                                        'bg-white dark:bg-white/0 border-gray-300 dark:border-gray-700'">
-                                    <svg :class="selectAll ? 'block' : 'hidden'" width="14" height="14"
-                                        viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M11.6668 3.5L5.25016 9.91667L2.3335 7" stroke="white"
-                                            stroke-width="1.94437" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                        @if (auth()->user()->role === 'admin')
+                            <th
+                                class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
+                                <div class="flex items-center gap-3">
+                                    <div @click="handleSelectAll()"
+                                        class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border-[1.25px]"
+                                        :class="selectAll ? 'border-blue-500 dark:border-blue-500 bg-blue-500' :
+                                            'bg-white dark:bg-white/0 border-gray-300 dark:border-gray-700'">
+                                        <svg :class="selectAll ? 'block' : 'hidden'" width="14" height="14"
+                                            viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M11.6668 3.5L5.25016 9.91667L2.3335 7" stroke="white"
+                                                stroke-width="1.94437" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                    <span class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">ID</span>
                                 </div>
-                                <span class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">ID</span>
-                            </div>
-                        </th>
+                            </th>
+                        @endif
                         <th
                             class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
                             NIK</th>
@@ -307,27 +309,30 @@
                 <tbody>
                     <template x-for="row in tableRowData" :key="row.id">
                         <tr class="border-b border-gray-100 dark:border-white/[0.05]">
-                            <td class="px-4 sm:px-6 py-3.5">
-                                <div class="flex items-center gap-3">
-                                    <div @click="handleRowSelect(row.id)"
-                                        class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border-[1.25px]"
-                                        :class="selectedRows.includes(row.id) ?
-                                            'border-blue-500 dark:border-blue-500 bg-blue-500' :
-                                            'bg-white dark:bg-white/0 border-gray-300 dark:border-gray-700'">
-                                        <svg :class="selectedRows.includes(row.id) ? 'block' : 'hidden'" width="14"
-                                            height="14" viewBox="0 0 14 14" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M11.6668 3.5L5.25016 9.91667L2.3335 7" stroke="white"
-                                                stroke-width="1.94437" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                        </svg>
+                            @if (auth()->user()->role === 'admin')
+                                <td class="px-4 sm:px-6 py-3.5">
+                                    <div class="flex items-center gap-3">
+                                        <div @click="handleRowSelect(row.id)"
+                                            class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border-[1.25px]"
+                                            :class="selectedRows.includes(row.id) ?
+                                                'border-blue-500 dark:border-blue-500 bg-blue-500' :
+                                                'bg-white dark:bg-white/0 border-gray-300 dark:border-gray-700'">
+                                            <svg :class="selectedRows.includes(row.id) ? 'block' : 'hidden'"
+                                                width="14" height="14" viewBox="0 0 14 14" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M11.6668 3.5L5.25016 9.91667L2.3335 7" stroke="white"
+                                                    stroke-width="1.94437" stroke-linecap="round"
+                                                    stroke-linejoin="round" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <span
+                                                class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400"
+                                                x-text="row.id"></span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400"
-                                            x-text="row.id"></span>
-                                    </div>
-                                </div>
-                            </td>
+                                </td>
+                            @endif
                             <td class="px-4 sm:px-6 py-3.5">
                                 <p class="text-gray-700 text-theme-sm dark:text-gray-400" x-text="row.nik"></p>
                             </td>
@@ -377,14 +382,14 @@
                             </td>
                             <td class="px-4 sm:px-6 py-3.5">
                                 <div class="flex items-center gap-3">
+                                    <button @click="editRow(row.id)">
+                                        <svg class="text-gray-700 cursor-pointer size-5 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-500"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
                                     @if (auth()->user()->role === 'admin')
-                                        <button @click="editRow(row.id)">
-                                            <svg class="text-gray-700 cursor-pointer size-5 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-500"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </button>
                                         <button @click="deleteRow(row.id)">
                                             <svg class="text-gray-700 cursor-pointer size-5 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-500"
                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">

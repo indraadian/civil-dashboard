@@ -188,59 +188,63 @@
                 <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
                     <div>
                         <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                            @if (auth()->user()->role === 'Admin')
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        NIK <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="nik" x-model="formData.nik" value="civil.nik"
+                                        placeholder="e.g. 3201xxxxxxxxxxxx" required
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                </div>
 
-                            <div class="col-span-2 lg:col-span-1">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    NIK <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="nik" x-model="formData.nik" value="civil.nik"
-                                    placeholder="e.g. 3201xxxxxxxxxxxx" required
-                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                            </div>
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Nama <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="name" x-model="formData.name"
+                                        placeholder="e.g. Indra Adian" required
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                </div>
 
-                            <div class="col-span-2 lg:col-span-1">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Nama <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="name" x-model="formData.name"
-                                    placeholder="e.g. Indra Adian" required
-                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                            </div>
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Tanggal Lahir <span class="text-red-500">*</span>
+                                    </label>
 
-                            <div class="col-span-2 lg:col-span-1">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Tanggal Lahir <span class="text-red-500">*</span>
-                                </label>
+                                    <x-form.date-picker id="date_of_birth" name="date_of_birth"
+                                        placeholder="YYYY-MM-DD" />
+                                </div>
 
-                                <x-form.date-picker id="date_of_birth" name="date_of_birth" placeholder="YYYY-MM-DD" />
-                            </div>
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Jenis Kelamin <span class="text-red-500">*</span>
+                                    </label>
+                                    <select name="gender" x-model="formData.gender" required
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                                        <option value="L" class="dark:bg-gray-900">L (Laki-Laki)</option>
+                                        <option value="P" class="dark:bg-gray-900">P (Perempuan)</option>
+                                    </select>
+                                </div>
 
-                            <div class="col-span-2 lg:col-span-1">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Jenis Kelamin <span class="text-red-500">*</span>
-                                </label>
-                                <select name="gender" x-model="formData.gender" required
-                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
-                                    <option value="L" class="dark:bg-gray-900">L (Laki-Laki)</option>
-                                    <option value="P" class="dark:bg-gray-900">P (Perempuan)</option>
-                                </select>
-                            </div>
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        RT <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="rt" x-model="formData.rt" placeholder="001"
+                                        required
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                </div>
 
-                            <div class="col-span-2 lg:col-span-1">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    RT <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="rt" x-model="formData.rt" placeholder="001" required
-                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                            </div>
-
-                            <div class="col-span-2 lg:col-span-1">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    RW <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="rw" x-model="formData.rw" placeholder="002" required
-                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                            </div>
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        RW <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="rw" x-model="formData.rw" placeholder="002"
+                                        required
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                </div>
+                            @endif
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -261,15 +265,15 @@
                                     <option value="housing" class="dark:bg-gray-900">Housing (Perumahan)</option>
                                 </select>
                             </div>
-
-                            <div class="col-span-2">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Alamat <span class="text-red-500">*</span>
-                                </label>
-                                <textarea name="address" x-model="formData.address" rows="3" placeholder="Jl. Anggrek No. 12..." required
-                                    class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"></textarea>
-                            </div>
-
+                            @if (auth()->user()->role === 'Admin')
+                                <div class="col-span-2">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Alamat <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea name="address" x-model="formData.address" rows="3" placeholder="Jl. Anggrek No. 12..." required
+                                        class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"></textarea>
+                                </div>
+                            @endif
                             <div class="col-span-2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                     Status <span class="text-red-500">*</span>
