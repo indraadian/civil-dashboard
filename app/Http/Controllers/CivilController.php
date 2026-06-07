@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Civil;
 use App\Http\Resources\CivilResource;
 use App\Exports\CivilsExport;
-use App\Imports\civilsImport;
+use App\Imports\CivilsImport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CivilController extends Controller
