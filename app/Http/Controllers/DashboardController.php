@@ -22,12 +22,6 @@ class DashboardController extends Controller
             ->pluck('total', 'status')
             ->toArray();
 
-        // Pastikan key tetap ada meski datanya 0 (agar tidak error di blade)
-        $summaryStatus = [
-            'Militan' => $statusCounts['Militan'] ?? 0,
-            'Ngambang' => $statusCounts['Ngambang'] ?? 0,
-            'Lawan' => $statusCounts['Lawan'] ?? 0,
-        ];
         $data = [
             'totalWarga' => $totalWarga,
             'totalToday' => $todayCount,
@@ -37,14 +31,5 @@ class DashboardController extends Controller
         ];
 
         return view('pages.dashboard.dashboard', $data);
-    }
-
-    private function calculatePercentage($current, $previous)
-    {
-        if ($previous == 0) {
-            return $current > 0 ? 100 : 0;
-        }
-
-        return (($current - $previous) / $previous) * 100;
     }
 }
