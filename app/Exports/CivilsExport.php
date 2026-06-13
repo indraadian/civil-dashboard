@@ -6,28 +6,55 @@ use App\Models\Civil;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\Exportable;
 
-class CivilsExport implements FromCollection, WithMapping, WithHeadings
+class CivilsExport implements FromQuery, WithMapping, WithHeadings
 {
+    use Exportable;
+
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function collection()
+    public function query()
     {
-        $columns = [
-            'nik',
-            'name',
-            'date_of_birth',
-            'gender',
-            'hamlet',
-            'location_type',
-            'rt',
-            'rw',
-            'address',
-            'status'
-        ];
-        return Civil::orderBy('updated_at', 'desc')->select($columns)->get();
+        // PENTING: Jangan gunakan ->get() di sini!
+        // Kembalikan objek query-nya saja agar library bisa melakukan chunking.
+        return Civil::query()
+            ->orderBy('updated_at', 'desc')
+            ->select([
+                'nik',
+                'name',
+                'date_of_birth',
+                'gender',
+                'hamlet',
+                'location_type',
+                'rt',
+                'rw',
+                'address',
+                'status'
+            ]);
     }
+
+    // /**
+    //  * @return \Illuminate\Support\Collection
+    //  */
+    // public function collection()
+    // {
+    //     $columns = [
+    //         'nik',
+    //         'name',
+    //         'date_of_birth',
+    //         'gender',
+    //         'hamlet',
+    //         'location_type',
+    //         'rt',
+    //         'rw',
+    //         'address',
+    //         'status'
+    //     ];
+    //     return Civil::orderBy('updated_at', 'desc')->select($columns)->get();
+    // }
 
     public function headings(): array
     {
@@ -48,8 +75,8 @@ class CivilsExport implements FromCollection, WithMapping, WithHeadings
 
     public function map($user): array
     {
-        $age = $user->date_of_birth 
-            ? (date('Y') - \Carbon\Carbon::parse($user->date_of_birth)->year) 
+        $age = $user->date_of_birth
+            ? (date('Y') - \Carbon\Carbon::parse($user->date_of_birth)->year)
             : '-';
         return [
             "'" . $user->nik,
