@@ -75,9 +75,9 @@ class CivilController extends Controller
         $civil = Civil::findOrFail($id);
         $guard = Auth::guard('web');
         $user = $guard->user();
-        if ($user->role === 'Admin') {
+        if ($user->role === 'admin') {
             $validated = $request->validate([
-                'nik' => 'required|numeric|digits:16|unique:civils,nik,'.$id,
+                'nik' => 'required|numeric|digits:16|unique:civils,nik,' . $id,
                 'name' => 'required|string|max:255',
                 'hamlet' => 'nullable|string|max:255',
                 'location_type' => 'required|in:village,housing',
@@ -145,7 +145,7 @@ class CivilController extends Controller
 
             return back()->with('success', 'Data berhasil diimpor!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }
