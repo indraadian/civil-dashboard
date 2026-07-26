@@ -6,7 +6,7 @@ class MenuHelper
 {
     public static function getMainNavItems()
     {
-        return [
+        $items = [
             [
                 'icon' => 'dashboard',
                 'name' => 'Dashboard',
@@ -18,6 +18,20 @@ class MenuHelper
                 'path' => '/civils',
             ],
         ];
+
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            $items[] = [
+                'icon' => 'forms',
+                'name' => 'Pengaturan',
+                'path' => '/settings',
+                'subItems' => [
+                    ['name' => 'Umum', 'path' => '/settings/general'],
+                    ['name' => 'User', 'path' => '/settings/users'],
+                ],
+            ];
+        }
+
+        return $items;
     }
 
     public static function getMenuGroups()

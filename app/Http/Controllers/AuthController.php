@@ -42,7 +42,7 @@ class AuthController extends Controller
 
     public function showRegistrationForm()
     {
-        return view('pages.auth.signup');
+        return redirect()->route('login')->with('info', 'Pendaftaran dibuka hanya melalui admin.');
     }
 
     public function register(Request $request)
