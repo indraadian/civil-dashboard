@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('civils', 'date_of_birth')) {
             Schema::table('civils', function (Blueprint $table) {
-                $table->date('date_of_birth')->nullable(); // Menambahkan kolom tanggal lahir
+                $table->date('date_of_birth')->nullable()->after('name');
             });
         }
     }
