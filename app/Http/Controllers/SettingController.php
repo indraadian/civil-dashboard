@@ -99,15 +99,19 @@ class SettingController extends Controller
                 '--no-interaction' => true,
             ]);
 
+            $output = trim(Artisan::output());
+
             if ($exitCode === 0) {
-                return back()->with('success', 'Migrasi berhasil dijalankan.');
+                return back()->with('success', $output ?: 'Migrasi berhasil dijalankan.');
             }
 
-            return back()->with('error', 'Migrasi gagal dijalankan.');
+            $message = $output ?: 'Migrasi gagal dijalankan.';
+
+            return back()->with('error', $message);
         } catch (\Throwable $e) {
             Log::error('Manual migration failed.', ['message' => $e->getMessage()]);
 
-            return back()->with('error', 'Terjadi kesalahan saat menjalankan migrasi.');
+            return back()->with('error', 'Terjadi kesalahan saat menjalankan migrasi: ' . $e->getMessage());
         }
     }
 }

@@ -11,8 +11,10 @@
         @endif
 
         @if (session('error'))
-            <div class="rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-400">
-                {{ session('error') }}
+            <div
+                class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-400">
+                <div class="font-medium">Migrasi gagal</div>
+                <div class="mt-2 whitespace-pre-line">{{ session('error') }}</div>
             </div>
         @endif
 

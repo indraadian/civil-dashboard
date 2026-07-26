@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 
 uses(RefreshDatabase::class);
 
@@ -31,4 +32,24 @@ it('allows admin to create a new user from settings', function () {
 
     $response->assertRedirect('/settings/users');
     $this->assertDatabaseHas('users', ['email' => 'baru@example.com']);
+});
+
+it('shows migration failure details in the UI', function () {
+    $admin = User::factory()->create([
+        'role' => 'admin',
+        'email' => 'admin3@example.com',
+    ]);
+
+    Artisan::shouldReceive('call')
+        ->once()
+        ->andReturn(1);
+
+    Artisan::shouldReceive('output')
+        ->once()
+        ->andReturn("SQLSTATE[42S01]: Base table or view already exists\nTable 'civils' already exists");
+
+    $response = $this->actingAs($admin, 'web')->from('/settings/general')->post('/settings/migrate');
+
+    $response->assertRedirect('/settings/general');
+    $response->assertSessionHas('error', "SQLSTATE[42S01]: Base table or view already exists\nTable 'civils' already exists");
 });
