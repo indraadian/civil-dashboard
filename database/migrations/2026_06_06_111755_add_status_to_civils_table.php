@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('civils', function (Blueprint $table) {
-            $table->string('status')->default('Ngambang')->after('location_type');
-        });
+        if (!Schema::hasColumn('civils', 'status')) {
+            Schema::table('civils', function (Blueprint $table) {
+                $table->string('status')->default('Ngambang')->after('location_type');
+            });
+        }
     }
 
     /**
@@ -21,9 +23,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('civils', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        if (Schema::hasColumn('civils', 'status')) {
+            Schema::table('civils', function (Blueprint $table) {
+                $table->dropColumn('status');
+            });
+        }
     }
 
 //     ALTER TABLE civils 
