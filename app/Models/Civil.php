@@ -8,6 +8,7 @@ class Civil extends Model
 {
     protected $fillable = [
         'nik',
+        'kk',
         'name',
         'hamlet',
         'location_type',

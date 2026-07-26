@@ -24,6 +24,8 @@ class CivilsImport implements ToModel, WithHeadingRow, WithSkipDuplicates, Skips
         }
 
         $cleanNik = preg_replace('/[^0-9]/', '', (string)$row['nik']);
+        $kk = $row['kk'] ?? $row['nomor_kk'] ?? $row['no_kk'] ?? null;
+        $cleanKk = !empty($kk) ? preg_replace('/[^0-9]/', '', (string) $kk) : null;
 
         $formattedDate = null;
         if (!empty($row['tanggal_lahir'])) {
@@ -43,6 +45,7 @@ class CivilsImport implements ToModel, WithHeadingRow, WithSkipDuplicates, Skips
 
         return new Civil([
             'nik'           => $cleanNik, // Harus sesuai teks header (abaikan case sensitive)
+            'kk'            => $cleanKk,
             'name'          => $row['name'],
             'date_of_birth' => $formattedDate, // Gunakan tanggal yang sudah diformat
             'gender'        => $row['jenis_kelamin'], // Excel: "Jenis Kelamin" -> jadi "jenis_kelamin"

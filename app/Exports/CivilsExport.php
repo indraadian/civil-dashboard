@@ -24,6 +24,7 @@ class CivilsExport implements FromQuery, WithMapping, WithHeadings
             ->orderBy('updated_at', 'desc')
             ->select([
                 'nik',
+                'kk',
                 'name',
                 'date_of_birth',
                 'gender',
@@ -60,6 +61,7 @@ class CivilsExport implements FromQuery, WithMapping, WithHeadings
     {
         return [
             'NIK',
+            'KK',
             'Nama Lengkap',
             'Tanggal Lahir',
             'Usia',
@@ -80,6 +82,7 @@ class CivilsExport implements FromQuery, WithMapping, WithHeadings
             : '-';
         return [
             "'" . $user->nik,
+            $user->kk ? "'" . $user->kk : '-',
             $user->name,
             $user->date_of_birth,
             $age,
