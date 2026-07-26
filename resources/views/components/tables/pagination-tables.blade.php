@@ -116,6 +116,7 @@
                 this.tableRowData = data.data.map(civil => ({
                     id: civil.id,
                     nik: civil.nik,
+                    kk: civil.kk || '-',
                     customerName: civil.name,
                     birthDate: civil.date_of_birth ? new Date(civil.date_of_birth).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-',
                     age: civil.date_of_birth ? new Date().getFullYear() - new Date(civil.date_of_birth).getFullYear() : '-',
@@ -273,6 +274,9 @@
                             NIK</th>
                         <th
                             class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
+                            KK</th>
+                        <th
+                            class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
                             Nama</th>
                         <th
                             class="px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
@@ -335,6 +339,9 @@
                             @endif
                             <td class="px-4 sm:px-6 py-3.5">
                                 <p class="text-gray-700 text-theme-sm dark:text-gray-400" x-text="row.nik"></p>
+                            </td>
+                            <td class="px-4 sm:px-6 py-3.5">
+                                <p class="text-gray-700 text-theme-sm dark:text-gray-400" x-text="row.kk"></p>
                             </td>
                             <td class="px-4 sm:px-6 py-3.5">
                                 <div class="flex items-center gap-3">

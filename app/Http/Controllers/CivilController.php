@@ -25,7 +25,8 @@ class CivilController extends Controller
         $civils = Civil::query()
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('nik', 'like', "%{$search}%");
+                    ->orWhere('nik', 'like', "%{$search}%")
+                    ->orWhere('kk', 'like', "%{$search}%");
             })
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage);
@@ -38,6 +39,7 @@ class CivilController extends Controller
         // 1. Validasi Input Form
         $validated = $request->validate([
             'nik' => 'required|numeric|digits:16|unique:civils,nik', // NIK harus 16 digit & unik
+            'kk' => 'nullable|string|max:16',
             'name' => 'required|string|max:255',
             'hamlet' => 'nullable|string|max:255',
             'location_type' => 'required|in:village,housing',
@@ -78,6 +80,7 @@ class CivilController extends Controller
         if ($user->role === 'admin') {
             $validated = $request->validate([
                 'nik' => 'required|numeric|digits:16|unique:civils,nik,' . $id,
+                'kk' => 'nullable|string|max:16',
                 'name' => 'required|string|max:255',
                 'hamlet' => 'nullable|string|max:255',
                 'location_type' => 'required|in:village,housing',
