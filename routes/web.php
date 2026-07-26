@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CivilController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController;
 
 // authentication pages
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -28,6 +29,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/civils/delete-bulk', [CivilController::class, 'destroyBulk'])->name('civils.destroyBulk');
         Route::get('/civils/export', [CivilController::class, 'export'])->name('civils.export');
         Route::post('/civils/import', [CivilController::class, 'import'])->name('civils.import');
+
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+        Route::get('/settings/general', [SettingController::class, 'general'])->name('settings.general');
+        Route::post('/settings/migrate', [SettingController::class, 'migrate'])->name('settings.migrate');
+        Route::get('/settings/users', [SettingController::class, 'users'])->name('settings.users');
+        Route::post('/settings/users', [SettingController::class, 'storeUser'])->name('settings.users.store');
+        Route::get('/settings/users/{id}/edit', [SettingController::class, 'editUser'])->name('settings.users.edit');
+        Route::put('/settings/users/{id}', [SettingController::class, 'updateUser'])->name('settings.users.update');
+        Route::delete('/settings/users/{id}', [SettingController::class, 'destroyUser'])->name('settings.users.destroy');
     });
 });
 
