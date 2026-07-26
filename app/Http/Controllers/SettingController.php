@@ -20,11 +20,28 @@ class SettingController extends Controller
         return view('pages.settings.general');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $query = $request->input('search');
 
-        return view('pages.settings.users', compact('users'));
+        $users = User::query()
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($subQuery) use ($query) {
+                    $subQuery->where('name', 'like', "%{$query}%")
+                        ->orWhere('email', 'like', "%{$query}%")
+                        ->orWhere('role', 'like', "%{$query}%");
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'html' => view('pages.settings.partials.user-table', compact('users'))->render(),
+            ]);
+        }
+
+        return view('pages.settings.users', compact('users', 'query'));
     }
 
     public function storeUser(Request $request)

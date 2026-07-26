@@ -12,13 +12,18 @@
 
         <x-tables.data-grid title="Daftar User" description="Tambah, edit, dan atur role pengguna dari sini.">
             <x-slot name="toolbar">
-                <form @submit.prevent>
+                <form action="{{ route('settings.users') }}" method="GET" class="w-full sm:w-auto" id="user-search-form">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <div class="relative">
-                            <button type="button" class="absolute -translate-y-1/2 left-4 top-1/2">
+                            <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
                             </button>
 
-                            <input type="text" x-model.debounce.500ms="search" placeholder="Cari user..."
+                            <input type="text" id="user-search-input" name="search" value="{{ request('search') }}"
+                                placeholder="Cari user..."
                                 class="h-[42px] w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-[42px] pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-blue-800 xl:w-[300px]" />
                         </div>
                     </div>
@@ -26,7 +31,7 @@
             </x-slot>
 
             <x-slot name="actions">
-                <button onclick="document.getElementById('user-form').classList.remove('hidden')"
+                <button @click="$dispatch('open-user-modal')"
                     class="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300">
                     <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -99,110 +104,250 @@
                         Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach ($users as $user)
-                    <tr class="border-b border-gray-100 dark:border-white/[0.05]">
-                        <td class="px-4 sm:px-6 py-3.5">
-                            <p class="text-gray-700 text-theme-sm dark:text-gray-400">
-                                {{ $user->name }}</p>
-                        </td>
-                        <td class="px-4 sm:px-6 py-3.5">
-                            <p class="text-gray-700 text-theme-sm dark:text-gray-400">
-                                {{ $user->email }}</p>
-                        </td>
-                        <td class="py-3">
-                            <span
-                                class="rounded-full px-2 py-1 text-xs font-medium {{ $user->role === 'admin' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
-                                {{ $user->role }}
-                            </span>
-                        </td>
-
-
-                        <td class="px-4 sm:px-6 py-3.5">
-                            <div class="flex items-center gap-3">
-                                <button @click="editUser({{ $user->id }})">
-                                    <svg class="text-gray-700 cursor-pointer size-5 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-500"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                @if (auth()->id() !== $user->id)
-                                    <form action="{{ route('settings.users.destroy', $user->id) }}" method="POST"
-                                        onsubmit="return confirm('Yakin ingin menghapus user ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600">Hapus</button>
-                                    </form>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
+            <tbody id="user-table-body">
+                @include('pages.settings.partials.user-table', ['users' => $users])
             </tbody>
         </x-tables.data-grid>
 
-        <form id="user-form" action="{{ route('settings.users.store') }}" method="POST"
-            class="mt-6 hidden rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-            @csrf
-            <div class="grid gap-4 md:grid-cols-2">
-                <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama</label>
-                    <input type="text" name="name" required
-                        class="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm" />
-                </div>
-                <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email</label>
-                    <input type="email" name="email" required
-                        class="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm" />
-                </div>
-                <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password</label>
-                    <input type="password" name="password" required
-                        class="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm" />
-                </div>
-                <div>
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Role</label>
-                    <select name="role" class="h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-            </div>
-            <div class="mt-4 flex gap-3">
-                <button type="submit"
-                    class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white">Simpan</button>
-                <button type="button" onclick="document.getElementById('user-form').classList.add('hidden')"
-                    class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700">Batal</button>
-            </div>
-        </form>
     </div>
 
+    <x-ui.modal x-data="{ open: false }" @open-user-modal.window="open = true" :isOpen="false" class="max-w-[600px]">
+        <div class="relative w-full max-w-[600px] rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
+            <div class="px-2 pr-14">
+                <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+                    Tambah User
+                </h4>
+                <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+                    Isi kolom untuk menambahkan akun pengguna baru.
+                </p>
+            </div>
+
+            <form action="{{ route('settings.users.store') }}" method="POST" class="flex flex-col">
+                @csrf
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama</label>
+                        <input type="text" name="name" required
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email</label>
+                        <input type="email" name="email" required
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password</label>
+                        <input type="password" name="password" required
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Role</label>
+                        <select name="role"
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button @click="open = false" type="button"
+                        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </x-ui.modal>
+
+    <x-ui.modal x-data="{ open: false, formData: {} }" @open-edit-user-modal.window="open = true; formData = $event.detail.data"
+        :isOpen="false" class="max-w-[600px]">
+        <div class="relative w-full max-w-[600px] rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
+            <div class="px-2 pr-14">
+                <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+                    Ubah User
+                </h4>
+                <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+                    Ubah informasi akun pengguna di bawah ini.
+                </p>
+            </div>
+
+            <form :action="'/settings/users/' + formData.id" method="POST" class="flex flex-col">
+                @csrf
+                <input type="hidden" name="_method" value="PUT">
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama</label>
+                        <input type="text" name="name" x-model="formData.name" required
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email</label>
+                        <input type="email" name="email" x-model="formData.email" required
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password</label>
+                        <input type="password" name="password" x-model="formData.password"
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Role</label>
+                        <select name="role" x-model="formData.role"
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button @click="open = false" type="button"
+                        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </x-ui.modal>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('user-search-input');
+            const searchForm = document.getElementById('user-search-form');
+
+            if (searchInput && searchForm) {
+                let debounceTimer;
+
+                const runSearch = function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(function() {
+                        const query = searchInput.value.trim();
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('search', query);
+
+                        fetch(url.toString(), {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            })
+                            .then(async response => {
+                                const data = await response.json().catch(() => ({}));
+                                if (!response.ok) {
+                                    throw new Error(data.message ||
+                                        'Gagal memuat hasil pencarian.');
+                                }
+
+                                const tableBody = document.getElementById(
+                                    'user-table-body');
+                                if (tableBody) {
+                                    tableBody.innerHTML = data.html || '';
+                                }
+                            })
+                            .catch(() => {
+                                showFlashMessage('Gagal memuat hasil pencarian.', 'error');
+                            });
+                    }, 400);
+                };
+
+                searchInput.addEventListener('input', runSearch);
+
+                searchForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    runSearch();
+                });
+            }
+        });
+
         function editUser(id) {
             fetch(`/settings/users/${id}/edit`)
                 .then(res => res.json())
                 .then(user => {
-                    const form = document.getElementById('user-form');
-                    form.classList.remove('hidden');
-                    form.action = `/settings/users/${id}`;
-                    form.querySelector('input[name="name"]').value = user.name;
-                    form.querySelector('input[name="email"]').value = user.email;
-                    form.querySelector('select[name="role"]').value = user.role;
-                    const passwordInput = form.querySelector('input[name="password"]');
-                    passwordInput.required = false;
-                    passwordInput.value = '';
-                    const methodInput = document.createElement('input');
-                    methodInput.type = 'hidden';
-                    methodInput.name = '_method';
-                    methodInput.value = 'PUT';
-                    if (!form.querySelector('input[name="_method"]')) {
-                        form.appendChild(methodInput);
-                    } else {
-                        form.querySelector('input[name="_method"]').value = 'PUT';
-                    }
+                    window.dispatchEvent(new CustomEvent('open-edit-user-modal', {
+                        detail: {
+                            data: user
+                        }
+                    }));
                 });
+        }
+
+        function deleteUser(id, button) {
+            if (!confirm('Yakin ingin menghapus user ini?')) {
+                return;
+            }
+
+            const row = button.closest('tr');
+            const originalHtml = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<span class="animate-spin">↻</span>';
+
+            fetch(`/settings/users/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(async response => {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal menghapus user.');
+                    }
+
+                    if (row) {
+                        row.remove();
+                    }
+
+                    const body = document.getElementById('user-table-body');
+                    if (body && body.children.length === 0) {
+                        body.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center">
+                                    <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-400">
+                                        Tidak ada user yang cocok dengan pencarian ini.
+                                    </div>
+                                </td>
+                            </tr>`;
+                    }
+
+                    showFlashMessage(data.message || 'User berhasil dihapus.', 'success');
+                })
+                .catch(error => {
+                    showFlashMessage(error.message, 'error');
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
+                });
+        }
+
+        function showFlashMessage(message, type) {
+            const existing = document.getElementById('user-flash-message');
+            if (existing) {
+                existing.remove();
+            }
+
+            const container = document.createElement('div');
+            container.id = 'user-flash-message';
+            container.className = type === 'success' ?
+                'rounded-lg bg-green-50 p-4 text-sm text-green-700 dark:bg-green-500/15 dark:text-green-400' :
+                'rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-400';
+            container.textContent = message;
+
+            const wrapper = document.querySelector('.space-y-6');
+            if (wrapper) {
+                wrapper.insertBefore(container, wrapper.firstChild);
+            }
         }
     </script>
 @endsection

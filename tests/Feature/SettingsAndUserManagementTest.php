@@ -34,6 +34,40 @@ it('allows admin to create a new user from settings', function () {
     $this->assertDatabaseHas('users', ['email' => 'baru@example.com']);
 });
 
+it('renders an ajax delete handler for users in the settings page', function () {
+    $admin = User::factory()->create([
+        'role' => 'admin',
+        'email' => 'admin3@example.com',
+    ]);
+
+    $response = $this->actingAs($admin, 'web')->get('/settings/users');
+
+    $response->assertStatus(200);
+    $response->assertSee('function deleteUser(', false);
+    $response->assertSee('X-Requested-With', false);
+});
+
+it('returns a partial table for ajax user searches', function () {
+    $admin = User::factory()->create([
+        'role' => 'admin',
+        'email' => 'admin4@example.com',
+    ]);
+
+    User::factory()->create([
+        'name' => 'Alice Search',
+        'email' => 'alice-search@example.com',
+        'role' => 'user',
+    ]);
+
+    $response = $this->actingAs($admin, 'web')
+        ->withHeader('X-Requested-With', 'XMLHttpRequest')
+        ->get('/settings/users?search=alice');
+
+    $response->assertStatus(200);
+    $response->assertDontSee('Manajemen User');
+    $response->assertSee('Alice Search');
+});
+
 it('shows migration failure details in the UI', function () {
     $admin = User::factory()->create([
         'role' => 'admin',
