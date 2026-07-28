@@ -2,28 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    /**
+     * Tampilkan halaman login.
+     */
+    public function showLogin(): View
     {
         return view('pages.auth.signin');
     }
 
-    public function login(Request $request)
+    /**
+     * Proses autentikasi login.
+     */
+    public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($request->validated())) {
             $request->session()->regenerate();
+
             return redirect()->intended('/civils');
         }
 
@@ -32,28 +37,33 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
+    /**
+     * Logout dan invalidate session.
+     */
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 
-    public function showRegistrationForm()
+    /**
+     * Tampilkan halaman registrasi (redirect ke login).
+     */
+    public function showRegistrationForm(): RedirectResponse
     {
-        return redirect()->route('login')->with('info', 'Pendaftaran dibuka hanya melalui admin.');
+        return redirect()->route('login')
+            ->with('info', 'Pendaftaran dibuka hanya melalui admin.');
     }
 
-    public function register(Request $request)
+    /**
+     * Proses registrasi user baru.
+     */
+    public function register(RegisterRequest $request): RedirectResponse
     {
-        // 1. Validasi Input
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:6']
-        ]);
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -61,28 +71,9 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Tambahkan baris ini untuk debug
         Auth::login($user);
 
-        if (Auth::check()) {
-            // Jika masuk ke sini, artinya login BERHASIL
-            return redirect()->intended('/dashboard')->with('success', 'Akun berhasil dibuat!');
-        } else {
-            // Jika masuk ke sini, artinya ada masalah dengan session/auth guard
-            dd("Login gagal, session tidak terbentuk.");
-        }
-        // 4. Redirect ke dashboard
-        return redirect('/dashboard')->with('success', 'Akun berhasil dibuat!');
-    }
-
-    public function createAdminUser()
-    {
-        $user = User::create([
-            'name' => 'indev',
-            'email' => 'indev@indev.com',
-            'role' => 'admin',
-            'password' => Hash::make('123Indev'),
-        ]);
-        return view('pages.auth.signin');
+        return redirect()->intended('/dashboard')
+            ->with('success', 'Akun berhasil dibuat!');
     }
 }

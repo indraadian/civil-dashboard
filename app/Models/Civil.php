@@ -2,10 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Civil extends Model
 {
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'nik',
         'kk',
@@ -18,7 +26,17 @@ class Civil extends Model
         'date_of_birth',
         'gender',
         'status',
-        'created_at',
-        'updated_at'
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'date_of_birth' => 'date',
+        ];
+    }
 }
