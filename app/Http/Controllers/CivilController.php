@@ -2,124 +2,93 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\Definitions\CivilDataTable;
 use App\Exports\CivilsExport;
-use App\Http\Resources\CivilResource;
+use App\Http\Requests\StoreCivilRequest;
+use App\Http\Requests\UpdateCivilRequest;
+use App\Http\Traits\HasDataTable;
 use App\Imports\CivilsImport;
 use App\Models\Civil;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CivilController extends Controller
 {
-    public function index()
+    use HasDataTable;
+
+    /**
+     * Tampilkan halaman daftar warga.
+     */
+    public function index(): View
     {
-        return view('pages.civil.list');
+        $config = $this->dataTableConfig(new CivilDataTable());
+
+        return view('pages.civil.list', compact('config'));
     }
 
-    public function data(Request $request)
+    /**
+     * Ambil data warga (JSON) untuk DataTable.
+     */
+    public function data(Request $request): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
-        $search = $request->input('search');
-
-        $civils = Civil::query()
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('nik', 'like', "%{$search}%")
-                    ->orWhere('kk', 'like', "%{$search}%");
-            })
-            ->orderBy('updated_at', 'desc')
-            ->paginate($perPage);
-
-        return CivilResource::collection($civils);
+        return $this->dataTableResponse($request, new CivilDataTable());
     }
 
-    public function store(Request $request)
+    /**
+     * Simpan data warga baru.
+     */
+    public function store(StoreCivilRequest $request): RedirectResponse
     {
-        // 1. Validasi Input Form
-        $validated = $request->validate([
-            'nik' => 'required|numeric|digits:16|unique:civils,nik', // NIK harus 16 digit & unik
-            'kk' => 'nullable|string|max:16',
-            'name' => 'required|string|max:255',
-            'hamlet' => 'nullable|string|max:255',
-            'location_type' => 'required|in:village,housing',
-            'rt' => 'required|string|max:5',
-            'rw' => 'required|string|max:5',
-            'address' => 'required|string',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:L,P',
-            'status' => 'required|in:Militan,Ngambang,Lawan',
-        ], [
-            // Custom pesan error bahasa Indonesia biar user ramah bacanya
-            'nik.unique' => 'NIK sudah terdaftar dalam sistem!',
-            'nik.digits' => 'NIK harus tepat berisikan 16 digit angka.',
-            'nik.numeric' => 'NIK hanya boleh berupa angka.',
-            'required' => 'Kolom :attribute wajib diisi!',
-        ]);
+        Civil::create($request->validated());
 
-        // 2. Simpan Data ke Database menggunakan Eloquent
-        Civil::create($validated);
-
-        // 3. Redirect kembali ke halaman list dengan membawa pesan sukses
-        return redirect()->route('civils')->with('success', 'Data warga baru berhasil didaftarkan!');
+        return redirect()->route('civils')
+            ->with('success', 'Data warga baru berhasil didaftarkan!');
     }
 
-    public function edit(int $id)
+    /**
+     * Ambil data warga untuk form edit (JSON response).
+     */
+    public function edit(Civil $civil): JsonResponse
     {
-        $civil = Civil::findOrFail($id);
-
-        // Karena kita pakai modal berbasis API/AJAX biar gak reload halaman, kita return JSON
         return response()->json($civil);
     }
 
-    public function update(Request $request, int $id)
+    /**
+     * Update data warga.
+     */
+    public function update(UpdateCivilRequest $request, Civil $civil): RedirectResponse
     {
-        $civil = Civil::findOrFail($id);
-        $guard = Auth::guard('web');
-        $user = $guard->user();
-        if ($user->role === 'admin') {
-            $validated = $request->validate([
-                'nik' => 'required|numeric|digits:16|unique:civils,nik,' . $id,
-                'kk' => 'nullable|string|max:16',
-                'name' => 'required|string|max:255',
-                'hamlet' => 'nullable|string|max:255',
-                'location_type' => 'required|in:village,housing',
-                'rt' => 'required|string|max:5',
-                'rw' => 'required|string|max:5',
-                'address' => 'required|string',
-                'date_of_birth' => 'required|date',
-                'gender' => 'required|in:L,P',
-                'status' => 'required|in:Militan,Ngambang,Lawan',
-            ]);
-        } else {
-            $validated = $request->validate([
-                'hamlet' => 'nullable|string|max:255',
-                'location_type' => 'required|in:village,housing',
-                'status' => 'required|in:Militan,Ngambang,Lawan',
-            ]);
-        }
-        $civil->update($validated);
+        $civil->update($request->validated());
 
-        return redirect()->route('civils')->with('success', 'Data warga berhasil diperbarui!');
+        return redirect()->route('civils')
+            ->with('success', 'Data warga berhasil diperbarui!');
     }
 
-    public function destroy(int $id)
+    /**
+     * Hapus satu data warga.
+     */
+    public function destroy(Civil $civil): JsonResponse
     {
-        $civil = Civil::findOrFail($id);
         $civil->delete();
 
         return response()->json(['message' => 'Data berhasil dihapus']);
     }
 
-    public function destroyBulk(Request $request)
+    /**
+     * Hapus beberapa data warga sekaligus.
+     */
+    public function destroyBulk(Request $request): JsonResponse
     {
-        // Validasi bahwa 'ids' harus ada dan merupakan array
         $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'integer',
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer'],
         ]);
 
-        Civil::whereIn('id', $request->ids, 'and', false)->delete();
+        Civil::whereIn('id', $request->ids)->delete();
 
         return response()->json([
             'status' => 'success',
@@ -127,24 +96,26 @@ class CivilController extends Controller
         ]);
     }
 
-    public function export()
+    /**
+     * Export data warga ke file Excel.
+     */
+    public function export(): BinaryFileResponse
     {
         return Excel::download(new CivilsExport, 'civils.xlsx');
     }
 
-    public function import(Request $request)
+    /**
+     * Import data warga dari file Excel/CSV.
+     */
+    public function import(Request $request): RedirectResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv',
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ]);
 
-        // 2. Mengambil file dari request
-        $file = $request->file('file');
-
-        // 3. Menjalankan proses import
         try {
             set_time_limit(0);
-            Excel::import(new CivilsImport, $file);
+            Excel::import(new CivilsImport, $request->file('file'));
 
             return back()->with('success', 'Data berhasil diimpor!');
         } catch (\Exception $e) {
