@@ -15,6 +15,13 @@
         </div>
     </div>
 
+    <div class="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {{ $filters ?? '' }}
+        </div>
+    </div>
+
+
     <div class="max-w-full overflow-x-auto">
         <table class="min-w-full">
             {{ $slot }}
