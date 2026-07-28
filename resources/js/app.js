@@ -10,10 +10,16 @@ import { Calendar } from '@fullcalendar/core';
 
 
 
+// DataTable Engine
+import { registerDataTableEngine } from './components/datatable-engine';
+
 window.Alpine = Alpine;
 window.ApexCharts = ApexCharts;
 window.flatpickr = flatpickr;
 window.FullCalendar = Calendar;
+
+// Register Alpine components
+registerDataTableEngine(Alpine);
 
 Alpine.start();
 
