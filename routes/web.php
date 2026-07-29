@@ -35,6 +35,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/civils/{civil}/edit', [CivilController::class, 'edit'])->name('civils.edit');
     Route::put('/civils/{civil}', [CivilController::class, 'update'])->name('civils.update');
 
+    // Import/Export progress polling (accessible by owner or admin)
+    Route::get('/imports/{import}', [CivilController::class, 'importProgress'])->name('civils.import.progress');
+    Route::get('/exports/{export}', [CivilController::class, 'exportProgress'])->name('civils.export.progress');
+    Route::get('/exports/{export}/download', [CivilController::class, 'exportDownload'])->name('civils.export.download');
+
     // Admin-only routes
     Route::middleware('role:admin')->group(function () {
 
@@ -42,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/civils', [CivilController::class, 'store'])->name('civils.store');
         Route::delete('/civils/{civil}', [CivilController::class, 'destroy'])->name('civils.destroy');
         Route::post('/civils/delete-bulk', [CivilController::class, 'destroyBulk'])->name('civils.destroyBulk');
-        Route::get('/civils/export', [CivilController::class, 'export'])->name('civils.export');
+        Route::post('/civils/export', [CivilController::class, 'export'])->name('civils.export');
         Route::post('/civils/import', [CivilController::class, 'import'])->name('civils.import');
 
         // Settings

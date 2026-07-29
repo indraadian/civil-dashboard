@@ -47,6 +47,13 @@ interface DataTableDefinition
     public function bulkActions(): array;
 
     /**
+     * Define toolbar-level actions (rendered at top-right of the table header).
+     *
+     * @return array<int, \App\DataTables\Actions\ToolbarAction>
+     */
+    public function toolbarActions(): array;
+
+    /**
      * Available per-page options.
      *
      * @return array<int, int>

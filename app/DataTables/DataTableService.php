@@ -182,6 +182,11 @@ class DataTableService
                 ->map(fn($action) => $action->toArray())
                 ->values()
                 ->toArray(),
+            'toolbarActions' => collect($definition->toolbarActions())
+                ->filter(fn($action) => $action->isAuthorized())
+                ->map(fn($action) => $action->toArray())
+                ->values()
+                ->toArray(),
             'perPageOptions' => $definition->perPageOptions(),
             'defaultPerPage' => $definition->defaultPerPage(),
             'defaultSortField' => $definition->defaultSortField(),

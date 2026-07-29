@@ -4,6 +4,7 @@ namespace App\DataTables\Definitions;
 
 use App\DataTables\Actions\BulkAction;
 use App\DataTables\Actions\RowAction;
+use App\DataTables\Actions\ToolbarAction;
 use App\DataTables\Columns\ActionColumn;
 use App\DataTables\Columns\AvatarColumn;
 use App\DataTables\Columns\BadgeColumn;
@@ -139,6 +140,33 @@ class CivilDataTable implements DataTableDefinition
                 ->label('Hapus')
                 ->endpoint('/civils/delete-bulk')
                 ->confirmMessage('Yakin ingin menghapus data yang dipilih?')
+                ->requiresRole('admin'),
+        ];
+    }
+
+    public function toolbarActions(): array
+    {
+        return [
+            ToolbarAction::make('export')
+                ->label('Ekspor')
+                ->icon('download')
+                ->url(route('civils.export'))
+                ->method('POST')
+                ->variant('secondary')
+                ->requiresRole('admin'),
+
+            ToolbarAction::make('import')
+                ->label('Impor')
+                ->icon('upload')
+                ->emitEvent('open-import-modal')
+                ->variant('primary')
+                ->requiresRole('admin'),
+
+            ToolbarAction::make('create')
+                ->label('Tambah')
+                ->icon('plus')
+                ->emitEvent('open-civil-modal')
+                ->variant('primary')
                 ->requiresRole('admin'),
         ];
     }
