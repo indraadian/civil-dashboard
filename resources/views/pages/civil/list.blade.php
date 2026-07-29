@@ -320,48 +320,126 @@
 
     {{-- Import Modal --}}
     <x-ui.modal x-data="{ open: false }" @open-import-modal.window="open = true" :isOpen="false" class="max-w-[700px]">
-        <div
-            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+        <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-10">
 
-            <div class="px-2 pr-14">
-                <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+            <div class="px-1 pr-12 mb-6">
+                <h4 class="mb-1 text-2xl font-semibold text-gray-800 dark:text-white/90">
                     Impor Data Penduduk
                 </h4>
-                <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-                    Unggah file Excel untuk melakukan impor.
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Unggah file Excel untuk memproses impor data warga secara otomatis di background.
                 </p>
             </div>
 
             <form action="{{ route('civils.import') }}" method="POST" enctype="multipart/form-data"
-                x-data="{ loading: false }" @submit="loading = true" class="flex flex-col">
+                x-data="{
+                    loading: false,
+                    isDragging: false,
+                    fileName: '',
+                    handleFileSelect(e) {
+                        const files = e.target.files || e.dataTransfer.files;
+                        if (files.length > 0) {
+                            this.fileName = files[0].name;
+                            this.$refs.fileInput.files = files;
+                        }
+                    }
+                }"
+                @submit="open = false; $dispatch('toast', { title: 'Impor Dimulai', message: 'File impor sedang diproses di background.', type: 'info' })"
+                class="flex flex-col gap-5">
                 @csrf
-                <div x-show="!loading" class="mb-6">
+
+                {{-- Download Template Button --}}
+                <div class="flex items-center justify-between rounded-2xl border border-brand-100 bg-brand-50/50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-white">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h6 class="text-xs font-semibold text-gray-800 dark:text-white">Template Excel Standard</h6>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400">Gunakan format kolom yang sesuai agar data tervalidasi dengan benar.</p>
+                        </div>
+                    </div>
                     <a href="{{ asset('templates/template_civil.xlsx') }}"
-                        class="inline-flex items-center text-sm text-brand-500 hover:underline dark:text-brand-400">
-                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-brand-600 shadow-xs hover:bg-brand-50 dark:bg-gray-800 dark:text-brand-400 dark:hover:bg-gray-700">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
-                        Unduh Template Excel (.xlsx)
+                        Unduh Template
                     </a>
                 </div>
-                <div x-show="!loading">
+
+                {{-- Drag & Drop Upload Zone --}}
+                <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                        Unggah file
+                        Pilih File Impor <span class="text-red-500">*</span>
                     </label>
-                    <input type="file" name="file" required
-                        class="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400" />
+
+                    <div @dragover.prevent="isDragging = true"
+                        @dragleave.prevent="isDragging = false"
+                        @drop.prevent="isDragging = false; handleFileSelect($event)"
+                        class="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-colors cursor-pointer"
+                        :class="isDragging ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-500/10' : 'border-gray-300 hover:border-brand-400 dark:border-gray-700 dark:hover:border-brand-500'">
+
+                        <input x-ref="fileInput" type="file" name="file" accept=".xlsx,.csv" required @change="handleFileSelect($event)"
+                            class="absolute inset-0 z-10 opacity-0 cursor-pointer" />
+
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 mb-3">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                        </div>
+
+                        <template x-if="!fileName">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Tarik & lepas file di sini, atau <span class="text-brand-500 underline">Cari File</span>
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">Format didukung: XLSX, CSV (Maksimal 10MB)</p>
+                            </div>
+                        </template>
+
+                        <template x-if="fileName">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-brand-600 dark:text-brand-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span x-text="fileName"></span>
+                            </div>
+                        </template>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-                    <button x-show="!loading" @click="open = false" type="button"
-                        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
+                {{-- Validation Rules Accordion --}}
+                <div x-data="{ showRules: false }" class="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <button type="button" @click="showRules = !showRules"
+                        class="flex w-full items-center justify-between bg-gray-50 px-4 py-2.5 text-xs font-semibold text-gray-700 dark:bg-white/[0.02] dark:text-gray-300">
+                        <span>Petunjuk Validasi Kolom</span>
+                        <svg class="h-4 w-4 transition-transform" :class="showRules ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="showRules" x-cloak class="p-4 text-xs space-y-1.5 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                        <p>• <strong>NIK</strong>: Wajib, 16 digit angka (unik).</p>
+                        <p>• <strong>KK</strong>: 16 digit angka (opsional).</p>
+                        <p>• <strong>Nama & Alamat</strong>: Wajib diisi.</p>
+                        <p>• <strong>Tanggal Lahir</strong>: Format `DD-MM-YYYY` (contoh: 15-08-1995).</p>
+                        <p>• <strong>Jenis Kelamin</strong>: `L` (Laki-Laki) atau `P` (Perempuan).</p>
+                        <p>• <strong>RT & RW</strong>: Format 3 digit (contoh: `001`, `002`).</p>
+                        <p>• <strong>Tipe Lokasi</strong>: `kampung` / `village` atau `housing` / `perumahan`.</p>
+                        <p>• <strong>Status</strong>: `Militan`, `Ngambang`, atau `Lawan` (default: Ngambang).</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 mt-4 lg:justify-end">
+                    <button @click="open = false" type="button"
+                        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 sm:w-auto">
                         Batal
                     </button>
                     <button type="submit" :disabled="loading"
-                        class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-                        <span x-show="!loading">Impor</span>
-                        <span x-show="loading">Memproses...</span>
+                        class="flex w-full justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
+                        Mulai Impor
                     </button>
                 </div>
             </form>

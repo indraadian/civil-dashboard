@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CivilController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,8 +38,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Import/Export progress polling (accessible by owner or admin)
     Route::get('/imports/{import}', [CivilController::class, 'importProgress'])->name('civils.import.progress');
+    Route::get('/imports/{import}/report', [CivilController::class, 'importReport'])->name('civils.import.report');
     Route::get('/exports/{export}', [CivilController::class, 'exportProgress'])->name('civils.export.progress');
     Route::get('/exports/{export}/download', [CivilController::class, 'exportDownload'])->name('civils.export.download');
+    Route::get('/active-tasks', [CivilController::class, 'activeTasks'])->name('civils.active-tasks');
+
+    // Notifications API
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 
     // Admin-only routes
     Route::middleware('role:admin')->group(function () {

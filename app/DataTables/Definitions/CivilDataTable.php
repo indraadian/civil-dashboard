@@ -150,8 +150,7 @@ class CivilDataTable implements DataTableDefinition
             ToolbarAction::make('export')
                 ->label('Ekspor')
                 ->icon('download')
-                ->url(route('civils.export'))
-                ->method('POST')
+                ->emitEvent('open-export-modal')
                 ->variant('secondary')
                 ->requiresRole('admin'),
 

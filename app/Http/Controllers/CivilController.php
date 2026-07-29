@@ -211,4 +211,63 @@ class CivilController extends Controller
             headers: ['Content-Type' => 'application/octet-stream'],
         );
     }
+
+    /**
+     * Kembalikan data laporan detail untuk import yang sudah selesai (View Report Modal).
+     *
+     * GET /imports/{import}/report
+     */
+    public function importReport(CivilImport $import): JsonResponse
+    {
+        $this->authorize('view', $import);
+
+        $duration = null;
+        if ($import->started_at && $import->finished_at) {
+            $seconds = $import->started_at->diffInSeconds($import->finished_at);
+            $duration = $seconds < 60 ? "{$seconds} detik" : round($seconds / 60, 1) . ' menit';
+        }
+
+        $successRows = max(0, ($import->processed_rows ?? 0) - ($import->failed_rows ?? 0));
+        $skippedRows = max(0, ($import->total_rows ?? 0) - ($import->processed_rows ?? 0));
+
+        return response()->json([
+            'id'             => $import->id,
+            'filename'       => $import->filename,
+            'status'         => $import->status,
+            'total_rows'     => $import->total_rows ?? 0,
+            'processed_rows' => $import->processed_rows ?? 0,
+            'success_rows'   => $successRows,
+            'failed_rows'    => $import->failed_rows ?? 0,
+            'skipped_rows'   => $skippedRows,
+            'duration'       => $duration ?? '-',
+            'error_message'  => $import->error_message,
+            'started_at'     => $import->started_at?->format('d M Y H:i:s'),
+            'finished_at'    => $import->finished_at?->format('d M Y H:i:s'),
+        ]);
+    }
+
+    /**
+     * Kembalikan daftar tugas import/export yang sedang berlangsung untuk pengguna.
+     *
+     * GET /active-tasks
+     */
+    public function activeTasks(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $imports = CivilImport::where('created_by', $user->id)
+            ->whereIn('status', ['pending', 'processing'])
+            ->latest()
+            ->get(['id', 'filename', 'status', 'progress', 'processed_rows', 'total_rows']);
+
+        $exports = CivilExport::where('created_by', $user->id)
+            ->whereIn('status', ['pending', 'processing'])
+            ->latest()
+            ->get(['id', 'filename', 'status', 'progress', 'processed_rows', 'total_rows']);
+
+        return response()->json([
+            'imports' => $imports,
+            'exports' => $exports,
+        ]);
+    }
 }
