@@ -10,6 +10,22 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="flex flex-col gap-1 rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                <div class="font-semibold flex items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" fill="currentColor" />
+                    </svg>
+                    Gagal menyimpan data user:
+                </div>
+                <ul class="list-disc pl-7 mt-1 space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- DataTable Component --}}
         <x-datatable :config="$config" data-url="{{ route('settings.users.data') }}" base-url="/settings/users"
             title="Daftar User">
@@ -124,9 +140,8 @@
                                                     <input type="checkbox" :name="'scopes[' + index + '][rt_ids][]'"
                                                         :value="rtItem.id" x-model="scope.selected_rt_ids"
                                                         :disabled="scope.all_rts" class="rounded text-brand-500" />
-                                                    <span class="text-gray-800 dark:text-white"
-                                                            x-text="'RT ' + rtItem.code + (rtItem.name ? ' (' + rtItem.name
-                                                        + ')' : '' )"></span>
+                                                    <span class="text-gray-800 dark:text-white" x-text="'RT ' + rtItem.code + (rtItem.name ? ' (' + rtItem.name
+                                                            + ')' : '' )"></span>
                                                 </label>
                                             </template>
                                         </div>
@@ -182,6 +197,12 @@
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Password Baru
                             (opsional)</label>
                         <input type="password" name="password" placeholder="Kosongkan jika tidak diubah"
+                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Konfirmasi Password
+                            Baru</label>
+                        <input type="password" name="password_confirmation" placeholder="Kosongkan jika tidak diubah"
                             class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
                     </div>
                 </div>
@@ -242,7 +263,7 @@
                                                     <input type="checkbox" :name="'scopes[' + index + '][rt_ids][]'"
                                                         :value="rtItem.id" x-model="scope.selected_rt_ids"
                                                         :disabled="scope.all_rts" class="rounded text-brand-500" />
-                                                    <span
+                                                    <span class="text-gray-800 dark:text-white"
                                                         x-text="'RT ' + rtItem.code + (rtItem.name ? ' (' + rtItem.name + ')' : '')"></span>
                                                 </label>
                                             </template>

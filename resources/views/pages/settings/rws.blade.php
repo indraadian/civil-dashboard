@@ -10,6 +10,22 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="flex flex-col gap-1 rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                <div class="font-semibold flex items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" fill="currentColor" />
+                    </svg>
+                    Gagal menyimpan data RW:
+                </div>
+                <ul class="list-disc pl-7 mt-1 space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- DataTable Component --}}
         <x-datatable
             :config="$config"
