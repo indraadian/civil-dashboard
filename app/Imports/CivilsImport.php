@@ -20,9 +20,10 @@ class CivilsImport
      * @var array<int, string>
      */
     public const EXPECTED_COLUMNS = [
-        'nik',
         'kk',
+        'nik',
         'name',
+        'tempat_lahir',
         'tanggal_lahir',
         'jenis_kelamin',
         'rt',
@@ -39,6 +40,13 @@ class CivilsImport
      * @var array<int, string>
      */
     public const KK_COLUMN_ALIASES = ['kk', 'nomor_kk', 'no_kk'];
+
+    /**
+     * Alias kolom yang diterima untuk kolom Tempat Lahir.
+     *
+     * @var array<int, string>
+     */
+    public const POB_COLUMN_ALIASES = ['tempat_lahir', 'pob', 'place_of_birth'];
 
     /**
      * Jumlah baris yang diproses per chunk (batch).

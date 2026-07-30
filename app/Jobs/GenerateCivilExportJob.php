@@ -6,6 +6,7 @@ use App\Events\ExportCompleted;
 use App\Events\ExportFailed;
 use App\Models\Civil;
 use App\Models\CivilExport;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -42,7 +43,8 @@ class GenerateCivilExportJob implements ShouldQueue
         private readonly CivilExport $export,
         private readonly array $filters = [],
         private readonly string $format = 'xlsx',
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.
@@ -51,8 +53,8 @@ class GenerateCivilExportJob implements ShouldQueue
     {
         Log::info('GenerateCivilExportJob: mulai generate.', [
             'export_id' => $this->export->id,
-            'filters'   => $this->filters,
-            'format'    => $this->format,
+            'filters' => $this->filters,
+            'format' => $this->format,
         ]);
 
         try {
@@ -64,7 +66,7 @@ class GenerateCivilExportJob implements ShouldQueue
 
             Log::error('GenerateCivilExportJob: error.', [
                 'export_id' => $this->export->id,
-                'error'     => $message,
+                'error' => $message,
             ]);
 
             throw $e;
@@ -80,13 +82,13 @@ class GenerateCivilExportJob implements ShouldQueue
         $this->export->markAsProcessing($totalRows);
 
         $spreadsheet = new Spreadsheet();
-        $sheet       = $spreadsheet->getActiveSheet();
+        $sheet = $spreadsheet->getActiveSheet();
 
         // Tulis heading row
         $sheet->fromArray($this->getHeadings(), null, 'A1');
 
         // Stream data dari DB menggunakan cursor (LazyCollection)
-        $rowIndex     = 2;
+        $rowIndex = 2;
         $processedRows = 0;
 
         $this->buildQuery()
@@ -103,7 +105,7 @@ class GenerateCivilExportJob implements ShouldQueue
             });
 
         // Simpan ke file temp
-        $storedPath  = $this->saveSpreadsheet($spreadsheet);
+        $storedPath = $this->saveSpreadsheet($spreadsheet);
         $downloadUrl = $this->buildDownloadUrl($storedPath);
 
         $spreadsheet->disconnectWorksheets();
@@ -114,9 +116,9 @@ class GenerateCivilExportJob implements ShouldQueue
         ExportCompleted::dispatch($this->export->fresh());
 
         Log::info('GenerateCivilExportJob: selesai.', [
-            'export_id'  => $this->export->id,
+            'export_id' => $this->export->id,
             'total_rows' => $processedRows,
-            'path'       => $storedPath,
+            'path' => $storedPath,
         ]);
     }
 
@@ -127,12 +129,20 @@ class GenerateCivilExportJob implements ShouldQueue
     {
         $query = Civil::query()->orderBy('updated_at', 'desc');
 
-        if (! empty($this->filters['status'])) {
+        if (!empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
         }
 
-        if (! empty($this->filters['hamlet'])) {
+        if (!empty($this->filters['hamlet'])) {
             $query->where('hamlet', $this->filters['hamlet']);
+        }
+
+        if (!empty($this->filters['rt'])) {
+            $query->where('rt', $this->filters['rt']);
+        }
+
+        if (!empty($this->filters['rw'])) {
+            $query->where('rw', $this->filters['rw']);
         }
 
         return $query;
@@ -143,9 +153,9 @@ class GenerateCivilExportJob implements ShouldQueue
      */
     private function saveSpreadsheet(Spreadsheet $spreadsheet): string
     {
-        $directory  = 'exports/' . now()->format('Y/m');
-        $filename   = $this->export->filename;
-        $tempPath   = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
+        $directory = 'exports/' . now()->format('Y/m');
+        $filename = $this->export->filename;
+        $tempPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
 
         $writer = $this->format === 'csv'
             ? new Csv($spreadsheet)
@@ -177,9 +187,10 @@ class GenerateCivilExportJob implements ShouldQueue
     private function getHeadings(): array
     {
         return [
+            'No. KK',
             'NIK',
-            'KK',
             'Nama Lengkap',
+            'Tempat Lahir',
             'Tanggal Lahir',
             'Usia',
             'Jenis Kelamin',
@@ -204,18 +215,19 @@ class GenerateCivilExportJob implements ShouldQueue
             : '-';
 
         return [
-            "'" . $civil->nik,
             $civil->kk ? "'" . $civil->kk : '-',
+            "'" . $civil->nik,
             $civil->name,
-            $civil->date_of_birth?->format('d-m-Y'),
+            $civil->place_of_birth ?? '-',
+            $civil->date_of_birth ? Carbon::parse($civil->date_of_birth)->format('d-m-Y') : null,
             $age,
             $civil->gender ?? '-',
             "'" . $civil->rt,
             "'" . $civil->rw,
-            $civil->hamlet,
+            $civil->hamlet ?? '-',
             $civil->address,
-            $civil->location_type === 'village' ? 'Kampung' : 'Perumahan',
-            $civil->status,
+            $civil->location_type === 'village' ? 'Kampung' : ($civil->location_type === 'housing' ? 'Perumahan' : '-'),
+            $civil->status ?? '-',
         ];
     }
 
@@ -226,14 +238,14 @@ class GenerateCivilExportJob implements ShouldQueue
     {
         $message = $exception->getMessage();
 
-        if (! $this->export->isFailed()) {
+        if (!$this->export->isFailed()) {
             $this->export->markAsFailed($message);
             ExportFailed::dispatch($this->export->fresh(), $message);
         }
 
         Log::error('GenerateCivilExportJob: job gagal setelah semua retry.', [
             'export_id' => $this->export->id,
-            'error'     => $message,
+            'error' => $message,
         ]);
     }
 }

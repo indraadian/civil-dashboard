@@ -38,7 +38,7 @@ class CivilController extends Controller
     {
         $config = $this->dataTableConfig(new CivilDataTable());
 
-        return view('pages.civil.list', compact('config'));
+        return view('pages.civil.civils', compact('config'));
     }
 
     /**
@@ -65,6 +65,8 @@ class CivilController extends Controller
      */
     public function edit(Civil $civil): JsonResponse
     {
+        $this->authorize('view', $civil);
+
         return response()->json($civil);
     }
 
@@ -73,6 +75,8 @@ class CivilController extends Controller
      */
     public function update(UpdateCivilRequest $request, Civil $civil): RedirectResponse
     {
+        $this->authorize('update', $civil);
+
         $civil->update($request->validated());
 
         return redirect()->route('civils')
@@ -84,6 +88,8 @@ class CivilController extends Controller
      */
     public function destroy(Civil $civil): JsonResponse
     {
+        $this->authorize('delete', $civil);
+
         $civil->delete();
 
         return response()->json(['message' => 'Data berhasil dihapus']);

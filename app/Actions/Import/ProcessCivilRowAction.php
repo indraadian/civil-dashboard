@@ -66,9 +66,10 @@ class ProcessCivilRowAction
     private function transformRow(array $row): array
     {
         return [
-            'nik' => $this->cleanNumeric((string) $row['nik']),
             'kk' => $this->resolveKk($row),
+            'nik' => $this->cleanNumeric((string) $row['nik']),
             'name' => $row['name'] ?? null,
+            'place_of_birth' => $row['tempat_lahir'] ?? $row['place_of_birth'] ?? $row['pob'] ?? null,
             'date_of_birth' => $this->parseDate($row['tanggal_lahir'] ?? null),
             'gender' => $row['jenis_kelamin'] ?? null,
             'rt' => $row['rt'] ?? null,

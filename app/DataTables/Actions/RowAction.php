@@ -10,7 +10,7 @@ class RowAction
     protected string $method = 'GET';
     protected ?string $emitEvent = null;
     protected ?string $confirmMessage = null;
-    protected ?string $requiresRole = null;
+    protected array $requiresRoles = [];
     protected ?string $url = null;
 
     public function __construct(string $name)
@@ -69,11 +69,18 @@ class RowAction
     }
 
     /**
-     * Restrict this action to a specific role.
+     * Restrict this action to specific role(s).
      */
-    public function requiresRole(string $role): static
+    public function requiresRole(string|array ...$roles): static
     {
-        $this->requiresRole = $role;
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                $this->requiresRoles = array_merge($this->requiresRoles, $role);
+            } else {
+                $this->requiresRoles[] = $role;
+            }
+        }
+        $this->requiresRoles = array_unique($this->requiresRoles);
 
         return $this;
     }
@@ -93,13 +100,13 @@ class RowAction
      */
     public function isAuthorized(): bool
     {
-        if (! $this->requiresRole) {
+        if (empty($this->requiresRoles)) {
             return true;
         }
 
         $user = auth()->user();
 
-        return $user && $user->role === $this->requiresRole;
+        return $user && in_array($user->role, $this->requiresRoles, true);
     }
 
     /**

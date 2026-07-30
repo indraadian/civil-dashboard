@@ -14,9 +14,17 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        return response()->json([
-            'unread_count'  => $user->unreadNotifications()->count(),
-            'notifications' => $user->notifications()->take(10)->get()->map(function ($notification) {
+        $notifications = $user->notifications()
+            ->latest()
+            ->take(20)
+            ->get()
+            ->unique(function ($notification) {
+                // Filter out duplicate notification records generated within the same minute
+                return ($notification->data['message'] ?? $notification->id) . '_' . $notification->created_at->format('Y-m-d H:i');
+            })
+            ->values()
+            ->take(10)
+            ->map(function ($notification) {
                 return [
                     'id'           => $notification->id,
                     'type'         => $notification->data['type'] ?? 'info',
@@ -25,7 +33,19 @@ class NotificationController extends Controller
                     'is_read'      => $notification->read_at !== null,
                     'created_at'   => $notification->created_at->diffForHumans(),
                 ];
-            }),
+            });
+
+        $unreadCount = $user->unreadNotifications()
+            ->latest()
+            ->get()
+            ->unique(function ($notification) {
+                return ($notification->data['message'] ?? $notification->id) . '_' . $notification->created_at->format('Y-m-d H:i');
+            })
+            ->count();
+
+        return response()->json([
+            'unread_count'  => $unreadCount,
+            'notifications' => $notifications,
         ]);
     }
 

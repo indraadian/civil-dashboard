@@ -12,7 +12,7 @@ class CivilExportPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -20,7 +20,7 @@ class CivilExportPolicy
      */
     public function view(User $user, CivilExport $export): bool
     {
-        return $user->role === 'admin' || $export->created_by === $user->id;
+        return $user->isAdmin() || $export->created_by === $user->id;
     }
 
     /**

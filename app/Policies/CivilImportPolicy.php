@@ -12,7 +12,7 @@ class CivilImportPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'admin';
+        return $user->isAdmin();
     }
 
     /**
@@ -20,6 +20,6 @@ class CivilImportPolicy
      */
     public function view(User $user, CivilImport $import): bool
     {
-        return $user->role === 'admin' || $import->created_by === $user->id;
+        return $user->isAdmin() || $import->created_by === $user->id;
     }
 }

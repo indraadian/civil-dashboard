@@ -11,7 +11,7 @@ class ToolbarAction
     protected ?string $url = null;
     protected string $method = 'GET';
     protected string $variant = 'primary';
-    protected ?string $requiresRole = null;
+    protected array $requiresRoles = [];
 
     public function __construct(string $name)
     {
@@ -85,11 +85,18 @@ class ToolbarAction
     }
 
     /**
-     * Restrict this action to users with the given role.
+     * Restrict this action to users with the given role(s).
      */
-    public function requiresRole(string $role): static
+    public function requiresRole(string|array ...$roles): static
     {
-        $this->requiresRole = $role;
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                $this->requiresRoles = array_merge($this->requiresRoles, $role);
+            } else {
+                $this->requiresRoles[] = $role;
+            }
+        }
+        $this->requiresRoles = array_unique($this->requiresRoles);
 
         return $this;
     }
@@ -99,13 +106,13 @@ class ToolbarAction
      */
     public function isAuthorized(): bool
     {
-        if (! $this->requiresRole) {
+        if (empty($this->requiresRoles)) {
             return true;
         }
 
         $user = auth()->user();
 
-        return $user && $user->role === $this->requiresRole;
+        return $user && in_array($user->role, $this->requiresRoles, true);
     }
 
     /**

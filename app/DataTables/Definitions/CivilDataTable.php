@@ -21,18 +21,18 @@ class CivilDataTable implements DataTableDefinition
 {
     public function query(): Builder
     {
-        return Civil::query();
+        return Civil::query()->forUser(auth()->user());
     }
 
     public function columns(): array
     {
         return [
+            TextColumn::make('kk')
+                ->label('No. KK'),
+
             TextColumn::make('nik')
                 ->label('NIK')
                 ->sortable(),
-
-            TextColumn::make('kk')
-                ->label('KK'),
 
             AvatarColumn::make('name')
                 ->label('Nama')
@@ -42,6 +42,9 @@ class CivilDataTable implements DataTableDefinition
                     'village' => ['bg' => 'bg-green-50', 'text' => 'text-green-600'],
                 ])
                 ->sortable(),
+
+            TextColumn::make('place_of_birth')
+                ->label('Tempat Lahir'),
 
             DateColumn::make('date_of_birth')
                 ->label('Tanggal Lahir')
@@ -113,7 +116,7 @@ class CivilDataTable implements DataTableDefinition
 
     public function searchableColumns(): array
     {
-        return ['name', 'nik', 'kk'];
+        return ['name', 'nik', 'kk', 'place_of_birth'];
     }
 
     public function actions(): array
@@ -129,7 +132,8 @@ class CivilDataTable implements DataTableDefinition
                 ->icon('delete')
                 ->method('DELETE')
                 ->confirmMessage('Yakin ingin menghapus data ini?')
-                ->requiresRole('admin'),
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
         ];
     }
 
@@ -140,7 +144,8 @@ class CivilDataTable implements DataTableDefinition
                 ->label('Hapus')
                 ->endpoint('/civils/delete-bulk')
                 ->confirmMessage('Yakin ingin menghapus data yang dipilih?')
-                ->requiresRole('admin'),
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
         ];
     }
 
@@ -152,21 +157,24 @@ class CivilDataTable implements DataTableDefinition
                 ->icon('download')
                 ->emitEvent('open-export-modal')
                 ->variant('secondary')
-                ->requiresRole('admin'),
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('primary')
-                ->requiresRole('admin'),
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
 
             ToolbarAction::make('create')
                 ->label('Tambah')
                 ->icon('plus')
                 ->emitEvent('open-civil-modal')
                 ->variant('primary')
-                ->requiresRole('admin'),
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
         ];
     }
 

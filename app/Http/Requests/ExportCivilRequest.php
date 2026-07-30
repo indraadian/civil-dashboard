@@ -25,6 +25,8 @@ class ExportCivilRequest extends FormRequest
             'format' => ['nullable', 'in:xlsx,csv'],
             'status' => ['nullable', 'string', 'max:50'],
             'hamlet' => ['nullable', 'string', 'max:100'],
+            'rt'     => ['nullable', 'string', 'max:10'],
+            'rw'     => ['nullable', 'string', 'max:10'],
         ];
     }
 
@@ -46,6 +48,8 @@ class ExportCivilRequest extends FormRequest
         return array_filter([
             'status' => $this->input('status'),
             'hamlet' => $this->input('hamlet'),
+            'rt'     => $this->input('rt'),
+            'rw'     => $this->input('rw'),
         ]);
     }
 }

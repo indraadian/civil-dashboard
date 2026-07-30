@@ -21,9 +21,10 @@ class CivilsExport
     public static function headings(): array
     {
         return [
+            'No. KK',
             'NIK',
-            'KK',
             'Nama Lengkap',
+            'Tempat Lahir',
             'Tanggal Lahir',
             'Usia',
             'Jenis Kelamin',
@@ -44,16 +45,17 @@ class CivilsExport
     public static function columns(): array
     {
         return [
-            'nik',
             'kk',
+            'nik',
             'name',
+            'place_of_birth',
             'date_of_birth',
             'gender',
-            'hamlet',
-            'location_type',
             'rt',
             'rw',
+            'hamlet',
             'address',
+            'location_type',
             'status',
         ];
     }

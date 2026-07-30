@@ -51,7 +51,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Tampilkan halaman registrasi (redirect ke login).
+     * Tampilkan halaman registrasi (dinonaktifkan).
      */
     public function showRegistrationForm(): RedirectResponse
     {
@@ -60,20 +60,11 @@ class AuthController extends Controller
     }
 
     /**
-     * Proses registrasi user baru.
+     * Proses registrasi user baru (dinonaktifkan).
      */
-    public function register(RegisterRequest $request): RedirectResponse
+    public function register(): RedirectResponse
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => 'user',
-            'password' => Hash::make($request->password),
-        ]);
-
-        Auth::login($user);
-
-        return redirect()->intended('/dashboard')
-            ->with('success', 'Akun berhasil dibuat!');
+        return redirect()->route('login')
+            ->with('info', 'Pendaftaran mandiri dinonaktifkan. Silakan hubungi admin.');
     }
 }

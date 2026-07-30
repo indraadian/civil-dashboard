@@ -9,7 +9,7 @@ class BulkAction
     protected string $endpoint = '';
     protected string $method = 'POST';
     protected ?string $confirmMessage = null;
-    protected ?string $requiresRole = null;
+    protected array $requiresRoles = [];
 
     public function __construct(string $name)
     {
@@ -53,9 +53,16 @@ class BulkAction
         return $this;
     }
 
-    public function requiresRole(string $role): static
+    public function requiresRole(string|array ...$roles): static
     {
-        $this->requiresRole = $role;
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                $this->requiresRoles = array_merge($this->requiresRoles, $role);
+            } else {
+                $this->requiresRoles[] = $role;
+            }
+        }
+        $this->requiresRoles = array_unique($this->requiresRoles);
 
         return $this;
     }
@@ -65,13 +72,13 @@ class BulkAction
      */
     public function isAuthorized(): bool
     {
-        if (! $this->requiresRole) {
+        if (empty($this->requiresRoles)) {
             return true;
         }
 
         $user = auth()->user();
 
-        return $user && $user->role === $this->requiresRole;
+        return $user && in_array($user->role, $this->requiresRoles, true);
     }
 
     /**

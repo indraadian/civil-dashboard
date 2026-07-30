@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        if (! filter_var(env('APP_AUTO_MIGRATE', false), FILTER_VALIDATE_BOOL)) {
+        if (!filter_var(env('APP_AUTO_MIGRATE', false), FILTER_VALIDATE_BOOL)) {
             return;
         }
 
@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
 
             try {
                 $exitCode = Artisan::call('migrate', [
-                    '--force'          => true,
+                    '--force' => true,
                     '--no-interaction' => true,
                 ]);
 
