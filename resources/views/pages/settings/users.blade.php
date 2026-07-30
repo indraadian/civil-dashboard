@@ -190,7 +190,6 @@
                             class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                             <option value="user">User (Dibatasi Wilayah)</option>
                             <option value="admin">Admin (Akses Operasional)</option>
-                            <option value="super_admin">Super Admin (Akses Penuh & Maintenance)</option>
                         </select>
                     </div>
                     <div>
