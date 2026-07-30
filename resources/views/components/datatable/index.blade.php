@@ -26,12 +26,100 @@
             </x-datatable.toolbar>
         </x-slot>
 
-        {{-- Actions: Total count + Custom buttons --}}
+        {{-- Actions: Total count + Toolbar Actions from config --}}
         <x-slot name="actions">
             <span class="text-sm text-gray-500 dark:text-gray-400">
                 Total: <span class="font-bold text-gray-700 dark:text-white" x-text="totalData"></span> data
             </span>
-            @if (isset($toolbarActions))
+
+            @foreach ($config['toolbarActions'] ?? [] as $tbAction)
+                @php
+                    $isSecondary = ($tbAction['variant'] ?? 'primary') === 'secondary';
+                    $btnClass = $isSecondary
+                        ? 'inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm border border-gray-300 bg-white text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-white/[0.03] disabled:opacity-50'
+                        : 'inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300';
+                @endphp
+
+                @if (!empty($tbAction['url']))
+                    @if (($tbAction['method'] ?? 'GET') === 'POST')
+                        {{-- POST form action --}}
+                        <form action="{{ $tbAction['url'] }}" method="POST" class="inline" x-data="{ loading: false }" @submit="loading = true">
+                            @csrf
+                            <button type="submit"
+                                :disabled="loading"
+                                class="{{ $btnClass }}">
+                                @if ($tbAction['icon'] === 'download')
+                                    <svg x-show="!loading" class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M6 1.5a.75.75 0 01.75.75V7.19l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06L5.25 7.19V2.25A.75.75 0 016 1.5zM1.5 9.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9z"/>
+                                    </svg>
+                                @elseif ($tbAction['icon'] === 'upload')
+                                    <svg x-show="!loading" class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M6 10.5a.75.75 0 01-.75-.75V4.81L3.53 6.53a.75.75 0 01-1.06-1.06l3-3a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06L6.75 4.81V9.75A.75.75 0 016 10.5zM1.5 9.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9z"/>
+                                    </svg>
+                                @else
+                                    <svg x-show="!loading" class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z" fill=""/>
+                                    </svg>
+                                @endif
+                                <svg x-show="loading" class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span x-show="!loading">{{ $tbAction['label'] }}</span>
+                                <span x-show="loading">Memproses...</span>
+                            </button>
+                        </form>
+                    @else
+                        {{-- URL action: redirect with loading state --}}
+                        <button x-data="{ loading: false }"
+                            @click="loading = true; window.location.assign('{{ $tbAction['url'] }}'); window.onfocus = () => { loading = false; };"
+                            :disabled="loading"
+                            class="{{ $btnClass }}">
+                            @if ($tbAction['icon'] === 'download')
+                                <svg x-show="!loading" class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6 1.5a.75.75 0 01.75.75V7.19l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06L5.25 7.19V2.25A.75.75 0 016 1.5zM1.5 9.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9z"/>
+                                </svg>
+                            @elseif ($tbAction['icon'] === 'upload')
+                                <svg x-show="!loading" class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6 10.5a.75.75 0 01-.75-.75V4.81L3.53 6.53a.75.75 0 01-1.06-1.06l3-3a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06L6.75 4.81V9.75A.75.75 0 016 10.5zM1.5 9.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9z"/>
+                                </svg>
+                            @else
+                                <svg x-show="!loading" class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z" fill=""/>
+                                </svg>
+                            @endif
+                            <svg x-show="loading" class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-show="!loading">{{ $tbAction['label'] }}</span>
+                            <span x-show="loading">Memproses...</span>
+                        </button>
+                    @endif
+                @elseif (!empty($tbAction['emitEvent']))
+                    {{-- Event action: dispatch Alpine event --}}
+                    <button @click="$dispatch('{{ $tbAction['emitEvent'] }}')"
+                        class="{{ $btnClass }}">
+                        @if ($tbAction['icon'] === 'upload')
+                            <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M6 10.5a.75.75 0 01-.75-.75V4.81L3.53 6.53a.75.75 0 01-1.06-1.06l3-3a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06L6.75 4.81V9.75A.75.75 0 016 10.5zM1.5 9.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9z"/>
+                            </svg>
+                        @elseif ($tbAction['icon'] === 'download')
+                            <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M6 1.5a.75.75 0 01.75.75V7.19l1.72-1.72a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06L5.25 7.19V2.25A.75.75 0 016 1.5zM1.5 9.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9z"/>
+                            </svg>
+                        @else
+                            <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z" fill=""/>
+                            </svg>
+                        @endif
+                        {{ $tbAction['label'] }}
+                    </button>
+                @endif
+            @endforeach
+
+            {{-- Fallback: manual slot for one-off customizations --}}
+            @if (isset($toolbarActions) && !$toolbarActions->isEmpty())
                 {{ $toolbarActions }}
             @endif
         </x-slot>

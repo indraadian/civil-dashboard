@@ -42,44 +42,6 @@
             base-url="/civils"
             title="Data Penduduk"
         >
-            {{-- Custom toolbar actions --}}
-            <x-slot name="toolbarActions">
-                @if (auth()->user()->role === 'admin')
-                    <button x-data="{ loading: false }"
-                        @click="loading = true; window.location.assign('{{ route('civils.export') }}'); window.onfocus = () => { loading = false; };"
-                        :disabled="loading"
-                        class="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300">
-                        <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z"
-                                fill=""></path>
-                        </svg>
-                        <span x-show="!loading">Ekspor</span>
-                        <span x-show="loading">Memproses...</span>
-                    </button>
-                    <button @click="$dispatch('open-import-modal')"
-                        class="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300">
-                        <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z"
-                                fill=""></path>
-                        </svg>
-                        Impor
-                    </button>
-                    <button @click="$dispatch('open-civil-modal')"
-                        class="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300">
-                        <svg class="fill-current" width="12" height="12" viewBox="0 0 12 12" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M5.25012 3C5.25012 2.58579 5.58591 2.25 6.00012 2.25C6.41433 2.25 6.75012 2.58579 6.75012 3V5.25012L9.00034 5.25012C9.41455 5.25012 9.75034 5.58591 9.75034 6.00012C9.75034 6.41433 9.41455 6.75012 9.00034 6.75012H6.75012V9.00034C6.75012 9.41455 6.41433 9.75034 6.00012 9.75034C5.58591 9.75034 5.25012 9.41455 5.25012 9.00034L5.25012 6.75012H3C2.58579 6.75012 2.25 6.41433 2.25 6.00012C2.25 5.58591 2.58579 5.25012 3 5.25012H5.25012V3Z"
-                                fill=""></path>
-                        </svg>
-                        Tambah
-                    </button>
-                @endif
-            </x-slot>
         </x-datatable>
     </div>
 
@@ -106,6 +68,14 @@
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                    No. KK
+                                </label>
+                                <input type="text" name="kk" placeholder="e.g. 3201010101010101"
+                                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                            </div>
+
+                            <div class="col-span-2 lg:col-span-1">
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                     NIK <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="nik" placeholder="e.g. 3201xxxxxxxxxxxx" required
@@ -114,17 +84,17 @@
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    KK
+                                    Nama <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="kk" placeholder="e.g. 320101010101010101"
+                                <input type="text" name="name" placeholder="e.g. Indra Adian" required
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                             </div>
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Nama <span class="text-red-500">*</span>
+                                    Tempat Lahir
                                 </label>
-                                <input type="text" name="name" placeholder="e.g. Indra Adian" required
+                                <input type="text" name="place_of_birth" placeholder="e.g. Bandung"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                             </div>
 
@@ -167,17 +137,17 @@
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                     Dusun
                                 </label>
-                                <input type="number" name="hamlet" placeholder="e.g. Dusun 1"
+                                <input type="text" name="hamlet" placeholder="e.g. Dusun 1"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                             </div>
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Tipe Lokasi <span class="text-red-500">*</span>
+                                    Tipe Lokasi
                                 </label>
-                                <select name="location_type" required
+                                <select name="location_type"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
-                                    <option value="" disabled selected class="dark:bg-gray-900">Pilih Tipe Lokasi</option>
+                                    <option value="" class="dark:bg-gray-900">Pilih Tipe Lokasi (Kosong)</option>
                                     <option value="village" class="dark:bg-gray-900">Village (Kampung)</option>
                                     <option value="housing" class="dark:bg-gray-900">Housing (Perumahan)</option>
                                 </select>
@@ -193,10 +163,11 @@
 
                             <div class="col-span-2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Status <span class="text-red-500">*</span>
+                                    Status
                                 </label>
-                                <select name="status" required
+                                <select name="status"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                                    <option value="" class="dark:bg-gray-900">Pilih Status (Kosong)</option>
                                     <option value="Militan" class="dark:bg-gray-900">Militan</option>
                                     <option value="Ngambang" class="dark:bg-gray-900">Ngambang</option>
                                     <option value="Lawan" class="dark:bg-gray-900">Lawan</option>
@@ -242,7 +213,13 @@
                 <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
                     <div>
                         <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                            @if (auth()->user()->role === 'admin')
+                            @if (auth()->user()->role === 'admin' || auth()->user()->role === 'rw' || auth()->user()->role === 'rt')
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">No. KK</label>
+                                    <input type="text" name="kk" x-model="formData.kk" placeholder="e.g. 3201010101010101"
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                </div>
+
                                 <div class="col-span-2 lg:col-span-1">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                         NIK <span class="text-red-500">*</span>
@@ -253,16 +230,16 @@
                                 </div>
 
                                 <div class="col-span-2 lg:col-span-1">
-                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">KK</label>
-                                    <input type="text" name="kk" x-model="formData.kk" placeholder="e.g. 320101010101010101"
-                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                                </div>
-
-                                <div class="col-span-2 lg:col-span-1">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                         Nama <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="name" x-model="formData.name" placeholder="e.g. Indra Adian" required
+                                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                                </div>
+
+                                <div class="col-span-2 lg:col-span-1">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Tempat Lahir</label>
+                                    <input type="text" name="place_of_birth" x-model="formData.place_of_birth" placeholder="e.g. Bandung"
                                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                                 </div>
 
@@ -303,21 +280,22 @@
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Dusun</label>
-                                <input type="number" name="hamlet" x-model="formData.hamlet" placeholder="e.g. Dusun Wargakoo"
+                                <input type="text" name="hamlet" x-model="formData.hamlet" placeholder="e.g. Dusun Wargakoo"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                             </div>
 
                             <div class="col-span-2 lg:col-span-1">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Tipe Lokasi <span class="text-red-500">*</span>
+                                    Tipe Lokasi
                                 </label>
-                                <select name="location_type" x-model="formData.location_type" required
+                                <select name="location_type" x-model="formData.location_type"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                                    <option value="" class="dark:bg-gray-900">Kosong</option>
                                     <option value="village" class="dark:bg-gray-900">Village (Kampung)</option>
                                     <option value="housing" class="dark:bg-gray-900">Housing (Perumahan)</option>
                                 </select>
                             </div>
-                            @if (auth()->user()->role === 'admin')
+                            @if (auth()->user()->role === 'admin' || auth()->user()->role === 'rw' || auth()->user()->role === 'rt')
                                 <div class="col-span-2">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                         Alamat <span class="text-red-500">*</span>
@@ -328,10 +306,11 @@
                             @endif
                             <div class="col-span-2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Status <span class="text-red-500">*</span>
+                                    Status
                                 </label>
-                                <select name="status" x-model="formData.status" required
+                                <select name="status" x-model="formData.status"
                                     class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                                    <option value="" class="dark:bg-gray-900">Kosong</option>
                                     <option value="Militan" class="dark:bg-gray-900">Militan</option>
                                     <option value="Ngambang" class="dark:bg-gray-900">Ngambang</option>
                                     <option value="Lawan" class="dark:bg-gray-900">Lawan</option>
@@ -356,53 +335,21 @@
         </div>
     </x-ui.modal>
 
-    {{-- Import Modal --}}
-    <x-ui.modal x-data="{ open: false }" @open-import-modal.window="open = true" :isOpen="false" class="max-w-[700px]">
-        <div
-            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-
-            <div class="px-2 pr-14">
-                <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                    Impor Data Penduduk
-                </h4>
-                <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-                    Unggah file Excel untuk melakukan impor.
-                </p>
-            </div>
-
-            <form action="{{ route('civils.import') }}" method="POST" enctype="multipart/form-data"
-                x-data="{ loading: false }" @submit="loading = true" class="flex flex-col">
-                @csrf
-                <div x-show="!loading" class="mb-6">
-                    <a href="{{ asset('templates/template_civil.xlsx') }}"
-                        class="inline-flex items-center text-sm text-brand-500 hover:underline dark:text-brand-400">
-                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        Unduh Template Excel (.xlsx)
-                    </a>
-                </div>
-                <div x-show="!loading">
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                        Unggah file
-                    </label>
-                    <input type="file" name="file" required
-                        class="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400" />
-                </div>
-
-                <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-                    <button x-show="!loading" @click="open = false" type="button"
-                        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
-                        Batal
-                    </button>
-                    <button type="submit" :disabled="loading"
-                        class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-                        <span x-show="!loading">Impor</span>
-                        <span x-show="loading">Memproses...</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </x-ui.modal>
+    {{-- Import Modal Component --}}
+    <x-ui.import-modal
+        :action="route('civils.import')"
+        title="Impor Data Penduduk"
+        description="Unggah file Excel untuk memproses impor data warga secara otomatis di background."
+        :templateUrl="asset('templates/template_civil.xlsx')"
+        :validationRules="[
+            '<strong>NIK</strong>: Wajib, 16 digit angka (unik).',
+            '<strong>KK</strong>: 16 digit angka (opsional).',
+            '<strong>Nama & Alamat</strong>: Wajib diisi.',
+            '<strong>Tanggal Lahir</strong>: Format `DD-MM-YYYY` (contoh: 15-08-1995).',
+            '<strong>Jenis Kelamin</strong>: `L` (Laki-Laki) atau `P` (Perempuan).',
+            '<strong>RT & RW</strong>: Format 3 digit (contoh: `001`, `002`).',
+            '<strong>Tipe Lokasi</strong>: `kampung` / `village` atau `housing` / `perumahan`.',
+            '<strong>Status</strong>: `Militan`, `Ngambang`, atau `Lawan` (default: Ngambang).',
+        ]"
+    />
 @endsection

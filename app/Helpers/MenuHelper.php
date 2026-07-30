@@ -19,15 +19,22 @@ class MenuHelper
             ],
         ];
 
-        if (auth()->check() && auth()->user()->role === 'admin') {
+        if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin())) {
+            $subItems = [
+                ['name' => 'User & Hak Akses', 'path' => '/settings/users'],
+                ['name' => 'Master RW', 'path' => '/settings/rws'],
+                ['name' => 'Master RT', 'path' => '/settings/rts'],
+            ];
+
+            if (auth()->user()->isSuperAdmin()) {
+                $subItems[] = ['name' => 'Maintenance', 'path' => '/settings/general'];
+            }
+
             $items[] = [
                 'icon' => 'forms',
                 'name' => 'Pengaturan',
                 'path' => '/settings',
-                'subItems' => [
-                    ['name' => 'Umum', 'path' => '/settings/general'],
-                    ['name' => 'User', 'path' => '/settings/users'],
-                ],
+                'subItems' => $subItems,
             ];
         }
 

@@ -157,6 +157,12 @@
 
     </div>
 
+    {{-- Global Import/Export UI Components --}}
+    <x-ui.toast-notification-widget />
+    <x-ui.export-modal />
+    <x-ui.import-modal />
+    <x-ui.import-report-modal />
+
 </body>
 
 @stack('scripts')

@@ -24,8 +24,12 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
-            'role' => ['required', 'in:admin,user'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'role' => ['required', 'in:super_admin,admin,user'],
+            'scopes' => ['nullable', 'array'],
+            'scopes.*.rw_id' => ['nullable', 'exists:rws,id'],
+            'scopes.*.rt_ids' => ['nullable', 'array'],
+            'scopes.*.rt_ids.*' => ['nullable', 'exists:rts,id'],
         ];
     }
 }

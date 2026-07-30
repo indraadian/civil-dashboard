@@ -9,6 +9,8 @@ class Filter
     protected string $type = 'text';
     protected string $operator = 'contains';
 
+    protected ?\Closure $applyCallback = null;
+
     public function __construct(string $field)
     {
         $this->field = $field;
@@ -34,6 +36,16 @@ class Filter
     }
 
     /**
+     * Set a custom query callback for this filter.
+     */
+    public function applyUsing(\Closure $callback): static
+    {
+        $this->applyCallback = $callback;
+
+        return $this;
+    }
+
+    /**
      * Set the filter comparison operator.
      */
     public function operator(string $operator): static
@@ -48,6 +60,12 @@ class Filter
      */
     public function apply(mixed $query, string $value): void
     {
+        if ($this->applyCallback) {
+            call_user_func($this->applyCallback, $query, $value);
+
+            return;
+        }
+
         if ($this->operator === 'contains') {
             $query->where($this->field, 'like', "%{$value}%");
         } elseif ($this->operator === 'equals') {

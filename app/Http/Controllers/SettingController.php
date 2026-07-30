@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\Definitions\UserDataTable;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Traits\HasDataTable;
+use App\Models\Rt;
+use App\Models\Rw;
 use App\Models\User;
+use App\Models\UserLocationScope;
+use App\Services\LocationSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +21,8 @@ use Illuminate\View\View;
 
 class SettingController extends Controller
 {
+    use HasDataTable;
+
     /**
      * Tampilkan halaman index settings.
      */
@@ -32,30 +40,26 @@ class SettingController extends Controller
     }
 
     /**
-     * Tampilkan daftar user dengan pencarian.
+     * Tampilkan daftar user (View).
      */
-    public function users(Request $request): View|JsonResponse
+    public function users(Request $request): View
     {
-        $query = $request->input('search');
+        $config = $this->dataTableConfig(new UserDataTable());
 
-        $users = User::query()
-            ->when($query, function ($q) use ($query) {
-                $q->where(function ($subQuery) use ($query) {
-                    $subQuery->where('name', 'like', "%{$query}%")
-                        ->orWhere('email', 'like', "%{$query}%")
-                        ->orWhere('role', 'like', "%{$query}%");
-                });
-            })
-            ->orderBy('created_at', 'desc')
+        $rws = Rw::with(['rts' => fn($q) => $q->where('is_active', true)->orderBy('code', 'asc')])
+            ->where('is_active', true)
+            ->orderBy('code', 'asc')
             ->get();
 
-        if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
-            return response()->json([
-                'html' => view('pages.settings.partials.user-table', compact('users'))->render(),
-            ]);
-        }
+        return view('pages.settings.users', compact('rws', 'config'));
+    }
 
-        return view('pages.settings.users', compact('users', 'query'));
+    /**
+     * Ambil data JSON user untuk DataTable.
+     */
+    public function usersData(Request $request): JsonResponse
+    {
+        return $this->dataTableResponse($request, new UserDataTable());
     }
 
     /**
@@ -63,12 +67,14 @@ class SettingController extends Controller
      */
     public function storeUser(StoreUserRequest $request): RedirectResponse
     {
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
             'password' => Hash::make($request->password),
         ]);
+
+        $this->syncUserLocationScopes($user, $request->input('scopes', []));
 
         return redirect()->route('settings.users')
             ->with('success', 'User berhasil ditambahkan.');
@@ -79,7 +85,7 @@ class SettingController extends Controller
      */
     public function editUser(User $user): JsonResponse
     {
-        return response()->json($user);
+        return response()->json($user->load(['locationScopes.rw', 'locationScopes.rt']));
     }
 
     /**
@@ -98,6 +104,8 @@ class SettingController extends Controller
         }
 
         $user->update($data);
+
+        $this->syncUserLocationScopes($user, $request->input('scopes', []));
 
         return redirect()->route('settings.users')
             ->with('success', 'User berhasil diperbarui.');
@@ -120,7 +128,28 @@ class SettingController extends Controller
     }
 
     /**
-     * Jalankan database migration secara manual.
+     * Hapus beberapa user sekaligus.
+     */
+    public function destroyUsersBulk(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids'   => ['required', 'array'],
+            'ids.*' => ['integer'],
+        ]);
+
+        $currentUserId = auth()->id();
+        $idsToDelete = array_diff($request->ids, [$currentUserId]);
+
+        User::whereIn('id', $idsToDelete)->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data user terpilih berhasil dihapus.',
+        ]);
+    }
+
+    /**
+     * Jalankan database migration secara manual (khusus super_admin).
      */
     public function migrate(): RedirectResponse
     {
@@ -141,6 +170,60 @@ class SettingController extends Controller
             Log::error('Manual migration failed.', ['message' => $e->getMessage()]);
 
             return back()->with('error', 'Terjadi kesalahan saat menjalankan migrasi: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Jalankan patch master RW & RT secara manual dari data Civil (khusus super_admin).
+     */
+    public function patchLocations(LocationSyncService $syncService): RedirectResponse
+    {
+        try {
+            $result = $syncService->syncFromCivils();
+
+            $message = "Patch Master RW & RT berhasil dijalankan! " .
+                "RW Baru: {$result['new_rws']}, RT Baru: {$result['new_rts']}, Data Dilewati: {$result['skipped']}.";
+
+            return back()->with('success', $message);
+        } catch (\Throwable $e) {
+            Log::error('Patch location sync failed.', ['message' => $e->getMessage()]);
+
+            return back()->with('error', 'Terjadi kesalahan saat patch lokasi: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Simpan/sinkronisasi hak akses wilayah user.
+     */
+    private function syncUserLocationScopes(User $user, array $scopes): void
+    {
+        $user->locationScopes()->delete();
+
+        foreach ($scopes as $item) {
+            if (empty($item['rw_id'])) {
+                continue;
+            }
+
+            $rwId = (int) $item['rw_id'];
+            $rtIds = isset($item['rt_ids']) && is_array($item['rt_ids'])
+                ? $item['rt_ids']
+                : (isset($item['rt_id']) && $item['rt_id'] !== '' ? [$item['rt_id']] : []);
+
+            if (empty($rtIds)) {
+                UserLocationScope::create([
+                    'user_id' => $user->id,
+                    'rw_id' => $rwId,
+                    'rt_id' => null,
+                ]);
+            } else {
+                foreach ($rtIds as $rtId) {
+                    UserLocationScope::create([
+                        'user_id' => $user->id,
+                        'rw_id' => $rwId,
+                        'rt_id' => $rtId ? (int) $rtId : null,
+                    ]);
+                }
+            }
         }
     }
 }

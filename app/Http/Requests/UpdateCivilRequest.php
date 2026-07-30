@@ -22,27 +22,31 @@ class UpdateCivilRequest extends FormRequest
     public function rules(): array
     {
         $user = $this->user();
+        $civilParam = $this->route('civil');
+        $civilId = is_object($civilParam) ? $civilParam->id : $civilParam;
 
-        if ($user && $user->role === 'admin') {
+        if ($user && ($user->isAdmin() || $user->isRw() || $user->isRt())) {
             return [
-                'nik' => ['required', 'numeric', 'digits:16', 'unique:civils,nik,' . $this->route('civil')],
                 'kk' => ['nullable', 'string', 'max:16'],
+                'nik' => ['required', 'numeric', 'digits:16', 'unique:civils,nik,' . $civilId],
                 'name' => ['required', 'string', 'max:255'],
-                'hamlet' => ['nullable', 'string', 'max:255'],
-                'location_type' => ['required', 'in:village,housing'],
-                'rt' => ['required', 'string', 'max:5'],
-                'rw' => ['required', 'string', 'max:5'],
-                'address' => ['required', 'string'],
+                'place_of_birth' => ['nullable', 'string', 'max:255'],
                 'date_of_birth' => ['required', 'date'],
                 'gender' => ['required', 'in:L,P'],
-                'status' => ['required', 'in:Militan,Ngambang,Lawan'],
+                'rt' => ['required', 'string', 'max:5'],
+                'rw' => ['required', 'string', 'max:5'],
+                'hamlet' => ['nullable', 'string', 'max:255'],
+                'address' => ['required', 'string'],
+                'location_type' => ['nullable', 'in:village,housing'],
+                'status' => ['nullable', 'in:Militan,Ngambang,Lawan'],
             ];
         }
 
         return [
+            'place_of_birth' => ['nullable', 'string', 'max:255'],
             'hamlet' => ['nullable', 'string', 'max:255'],
-            'location_type' => ['required', 'in:village,housing'],
-            'status' => ['required', 'in:Militan,Ngambang,Lawan'],
+            'location_type' => ['nullable', 'in:village,housing'],
+            'status' => ['nullable', 'in:Militan,Ngambang,Lawan'],
         ];
     }
 

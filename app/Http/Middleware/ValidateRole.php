@@ -8,15 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class ValidateRole
 {
- public function handle(Request $request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        // Gunakan Auth::check()
         if (!Auth::check()) {
             return redirect('login');
         }
 
-        // Gunakan Auth::user() untuk mengambil data user
-        if (in_array(Auth::user()->role, $roles)) {
+        $userRole = Auth::user()->role;
+
+        if ($userRole === 'super_admin') {
+            return $next($request);
+        }
+
+        if (in_array($userRole, $roles)) {
             return $next($request);
         }
 

@@ -2,72 +2,67 @@
 
 namespace App\Imports;
 
-use App\Models\Civil;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithSkipDuplicates;
-use Carbon\Carbon;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
-
-class CivilsImport implements ToModel, WithHeadingRow, WithSkipDuplicates, SkipsEmptyRows
+/**
+ * CivilsImport sekarang hanya berperan sebagai value object/DTO
+ * yang mendefinisikan field mapping dan konstanta.
+ *
+ * Proses import yang sebenarnya dilakukan oleh:
+ * - ProcessCivilImportJob (orchestration)
+ * - ProcessCivilRowAction (transformasi satu baris)
+ *
+ * Class ini dipertahankan untuk backward compatibility dan dokumentasi.
+ */
+class CivilsImport
 {
     /**
-     * @param array $row
+     * Nama kolom yang diharapkan ada di file Excel/CSV (setelah normalisasi ke snake_case).
      *
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @var array<int, string>
      */
-    public function model(array $row)
+    public const EXPECTED_COLUMNS = [
+        'kk',
+        'nik',
+        'name',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'jenis_kelamin',
+        'rt',
+        'rw',
+        'dusun',
+        'alamat',
+        'tipe_lokasi',
+        'status',
+    ];
+
+    /**
+     * Alias kolom yang diterima untuk kolom KK.
+     *
+     * @var array<int, string>
+     */
+    public const KK_COLUMN_ALIASES = ['kk', 'nomor_kk', 'no_kk'];
+
+    /**
+     * Alias kolom yang diterima untuk kolom Tempat Lahir.
+     *
+     * @var array<int, string>
+     */
+    public const POB_COLUMN_ALIASES = ['tempat_lahir', 'pob', 'place_of_birth'];
+
+    /**
+     * Jumlah baris yang diproses per chunk (batch).
+     */
+    public const CHUNK_SIZE = 1000;
+
+    /**
+     * Validasi apakah heading dari file sesuai dengan yang diharapkan.
+     *
+     * @param  array<int, string>  $headings
+     * @return array<int, string> Daftar kolom yang hilang
+     */
+    public static function getMissingColumns(array $headings): array
     {
-        // Cek apakah NIK ada, jika tidak, skip baris ini
-        if (empty($row['nik'])) {
-            return null;
-        }
+        $required = array_diff(self::EXPECTED_COLUMNS, ['kk']); // KK boleh kosong/alias
 
-        $cleanNik = preg_replace('/[^0-9]/', '', (string)$row['nik']);
-        $kk = $row['kk'] ?? $row['nomor_kk'] ?? $row['no_kk'] ?? null;
-        $cleanKk = !empty($kk) ? preg_replace('/[^0-9]/', '', (string) $kk) : null;
-
-        $formattedDate = null;
-        if (!empty($row['tanggal_lahir'])) {
-            $cleanDate = str_replace('|', '-', $row['tanggal_lahir']);
-            try {
-                $formattedDate = Carbon::createFromFormat('d-m-Y', $cleanDate)->format('Y-m-d');
-            } catch (\Exception $e) {
-                $formattedDate = null;
-            }
-        }
-
-        $locationType = null;
-        if (!empty($row['tipe_lokasi'])) {
-            $locationType = $row['tipe_lokasi'];
-            $locationType = $locationType == "kampung" ? "village" : "housing"; // Ubah ke huruf kecil untuk konsistensi
-        }
-
-        return new Civil([
-            'nik'           => $cleanNik, // Harus sesuai teks header (abaikan case sensitive)
-            'kk'            => $cleanKk,
-            'name'          => $row['name'],
-            'date_of_birth' => $formattedDate, // Gunakan tanggal yang sudah diformat
-            'gender'        => $row['jenis_kelamin'], // Excel: "Jenis Kelamin" -> jadi "jenis_kelamin"
-            'rt'            => $row['rt'],
-            'rw'            => $row['rw'],
-            'hamlet'        => $row['dusun'],         // Excel: "Dusun"
-            'address'       => $row['alamat'],        // Excel: "Alamat"
-            'location_type' => $locationType,
-            'status'        => $row['status'],
-            'created_at'    => now(),
-            'updated_at'    => now()
-        ]);
-    }
-
-    public function chunkSize(): int
-    {
-        return 1000; // Memproses 1000 baris per antrian
-    }
-
-
-    public function startRow(): int
-    {
-        return 2;
+        return array_values(array_diff($required, $headings));
     }
 }

@@ -24,6 +24,26 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' || $this->role === 'super_admin';
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    public function locationScopes()
+    {
+        return $this->hasMany(UserLocationScope::class, 'user_id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

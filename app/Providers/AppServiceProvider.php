@@ -2,8 +2,22 @@
 
 namespace App\Providers;
 
+use App\Events\ExportCompleted;
+use App\Events\ExportFailed;
+use App\Events\ImportCompleted;
+use App\Events\ImportFailed;
+use App\Listeners\HandleExportCompleted;
+use App\Listeners\HandleExportFailed;
+use App\Listeners\HandleImportCompleted;
+use App\Listeners\HandleImportFailed;
+use App\Models\CivilExport;
+use App\Models\CivilImport;
+use App\Policies\CivilExportPolicy;
+use App\Policies\CivilImportPolicy;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,11 +36,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ── Policy Registration ────────────────────────────────────────────────
+        Gate::policy(CivilImport::class, CivilImportPolicy::class);
+        Gate::policy(CivilExport::class, CivilExportPolicy::class);
+
+        // ── Event Listeners ────────────────────────────────────────────────────
+        Event::listen(ImportCompleted::class, HandleImportCompleted::class);
+        Event::listen(ImportFailed::class, HandleImportFailed::class);
+        Event::listen(ExportCompleted::class, HandleExportCompleted::class);
+        Event::listen(ExportFailed::class, HandleExportFailed::class);
+
+        // ── Auto Migration (existing behavior) ────────────────────────────────
         if ($this->app->runningInConsole() || $this->app->environment('testing')) {
             return;
         }
 
-        if (! filter_var(env('APP_AUTO_MIGRATE', false), FILTER_VALIDATE_BOOL)) {
+        if (!filter_var(env('APP_AUTO_MIGRATE', false), FILTER_VALIDATE_BOOL)) {
             return;
         }
 
@@ -55,3 +80,4 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 }
+

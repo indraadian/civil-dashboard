@@ -21,14 +21,21 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userParam = $this->route('user');
+        $userId = is_object($userParam) ? $userParam->id : $userParam;
+
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $this->route('user')],
-            'role' => ['required', 'in:admin,user'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $userId],
+            'role' => ['required', 'in:super_admin,admin,user'],
+            'scopes' => ['nullable', 'array'],
+            'scopes.*.rw_id' => ['nullable', 'exists:rws,id'],
+            'scopes.*.rt_ids' => ['nullable', 'array'],
+            'scopes.*.rt_ids.*' => ['nullable', 'exists:rts,id'],
         ];
 
         if ($this->filled('password')) {
-            $rules['password'] = ['nullable', 'string', 'min:6'];
+            $rules['password'] = ['nullable', 'string', 'min:6', 'confirmed'];
         }
 
         return $rules;

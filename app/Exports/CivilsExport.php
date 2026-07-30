@@ -2,66 +2,29 @@
 
 namespace App\Exports;
 
-use App\Models\Civil;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\Exportable;
-
-class CivilsExport implements FromQuery, WithMapping, WithHeadings
+/**
+ * CivilsExport sekarang hanya berperan sebagai value object/DTO
+ * yang mendefinisikan heading dan field mapping untuk export.
+ *
+ * Proses export yang sebenarnya dilakukan oleh:
+ * - GenerateCivilExportJob (orchestration & file generation)
+ *
+ * Class ini dipertahankan untuk dokumentasi dan referensi field mapping.
+ */
+class CivilsExport
 {
-    use Exportable;
-
     /**
-     * @return \Illuminate\Database\Eloquent\Builder
+     * Heading kolom untuk file export.
+     *
+     * @return array<int, string>
      */
-    public function query()
-    {
-        // PENTING: Jangan gunakan ->get() di sini!
-        // Kembalikan objek query-nya saja agar library bisa melakukan chunking.
-        return Civil::query()
-            ->orderBy('updated_at', 'desc')
-            ->select([
-                'nik',
-                'kk',
-                'name',
-                'date_of_birth',
-                'gender',
-                'hamlet',
-                'location_type',
-                'rt',
-                'rw',
-                'address',
-                'status'
-            ]);
-    }
-
-    // /**
-    //  * @return \Illuminate\Support\Collection
-    //  */
-    // public function collection()
-    // {
-    //     $columns = [
-    //         'nik',
-    //         'name',
-    //         'date_of_birth',
-    //         'gender',
-    //         'hamlet',
-    //         'location_type',
-    //         'rt',
-    //         'rw',
-    //         'address',
-    //         'status'
-    //     ];
-    //     return Civil::orderBy('updated_at', 'desc')->select($columns)->get();
-    // }
-
-    public function headings(): array
+    public static function headings(): array
     {
         return [
+            'No. KK',
             'NIK',
-            'KK',
             'Nama Lengkap',
+            'Tempat Lahir',
             'Tanggal Lahir',
             'Usia',
             'Jenis Kelamin',
@@ -70,28 +33,30 @@ class CivilsExport implements FromQuery, WithMapping, WithHeadings
             'Dusun',
             'Alamat',
             'Jenis Lokasi',
-            'Status'
+            'Status',
         ];
     }
 
-    public function map($user): array
+    /**
+     * Kolom yang akan di-select dari database.
+     *
+     * @return array<int, string>
+     */
+    public static function columns(): array
     {
-        $age = $user->date_of_birth
-            ? (date('Y') - \Carbon\Carbon::parse($user->date_of_birth)->year)
-            : '-';
         return [
-            "'" . $user->nik,
-            $user->kk ? "'" . $user->kk : '-',
-            $user->name,
-            $user->date_of_birth,
-            $age,
-            $user->gender ?? '-',
-            "'" . $user->rt, // Menjaga format 001, 002
-            "'" . $user->rw, // Menjaga format 001, 002
-            $user->hamlet,
-            $user->address,
-            $user->location_type === 'village' ? 'Kampung' : 'Perumahan',
-            $user->status
+            'kk',
+            'nik',
+            'name',
+            'place_of_birth',
+            'date_of_birth',
+            'gender',
+            'rt',
+            'rw',
+            'hamlet',
+            'address',
+            'location_type',
+            'status',
         ];
     }
 }
