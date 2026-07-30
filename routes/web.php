@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/rws/{rw}/rts', [RwController::class, 'getRts'])->name('api.rws.rts');
 
     // Admin & Super Admin operational routes
-    Route::middleware(['role:super_admin|admin'])->group(function () {
+    Route::middleware(['role:admin'])->group(function () {
 
         // Civils management
         Route::post('/civils', [CivilController::class, 'store'])->name('civils.store');
