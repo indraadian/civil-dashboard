@@ -157,11 +157,12 @@
 
     </div>
 
-    {{-- Global Import/Export UI Components --}}
+    {{-- Global Import/Export UI & Profile Components --}}
     <x-ui.toast-notification-widget />
     <x-ui.export-modal />
     <x-ui.import-modal />
     <x-ui.import-report-modal />
+    <x-ui.profile-modal />
 
 </body>
 
