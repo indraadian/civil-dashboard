@@ -27,7 +27,7 @@ class UpdateUserRequest extends FormRequest
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $userId],
-            'role' => ['required', 'in:super_admin,admin,user'],
+            'role' => ['required', 'in:admin,user'],
             'scopes' => ['nullable', 'array'],
             'scopes.*.rw_id' => ['nullable', 'exists:rws,id'],
             'scopes.*.rt_ids' => ['nullable', 'array'],

@@ -96,7 +96,7 @@ class SettingController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
+            'role' => $user->isSuperAdmin() ? 'super_admin' : $request->role,
         ];
 
         if ($request->filled('password')) {
