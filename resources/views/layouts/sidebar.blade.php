@@ -59,19 +59,16 @@
     @mouseenter="if (!$store.sidebar.isExpanded) $store.sidebar.setHovered(true)"
     @mouseleave="$store.sidebar.setHovered(false)">
     <!-- Logo Section -->
-    <div class="pt-8 pb-7 flex"
+    <div class="pt-6 pb-6 flex px-6"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-        'xl:justify-center' :
+        'xl:justify-center px-0' :
         'justify-start'">
-        <a href="/">
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width="150" height="40" />
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width="150"
-                height="40" />
-            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
-                src="/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
-
+        <a href="/" class="flex items-center gap-3">
+            <img src="/images/logo/logo-app.png" alt="QuickCount PILKADES Logo" class="h-10 w-10 shrink-0 rounded-xl object-contain drop-shadow-xs" />
+            <div x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="flex flex-col">
+                <span class="text-base font-black tracking-tight text-gray-900 dark:text-white leading-none">QuickCount</span>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-brand-600 dark:text-brand-400 mt-1">PILKADES</span>
+            </div>
         </a>
     </div>
 

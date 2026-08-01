@@ -35,6 +35,69 @@
             </div>
         @endif
 
+        {{-- Civil Status Summary Widgets --}}
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {{-- Total Warga --}}
+            <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs dark:border-gray-800 dark:bg-gray-900">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Penduduk</p>
+                        <h4 class="text-2xl font-bold text-gray-800 dark:text-white">{{ number_format($totalWarga) }} <span class="text-xs font-normal text-gray-500">Jiwa</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Status Militan --}}
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-xs dark:border-emerald-900/40 dark:bg-emerald-950/20">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md shadow-emerald-500/20 dark:bg-emerald-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Militan</p>
+                        <h4 class="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{{ number_format($militan) }} <span class="text-xs font-normal text-gray-500 dark:text-gray-400">Penduduk</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Status Ngambang --}}
+            <div class="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-xs dark:border-amber-900/40 dark:bg-amber-950/20">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/20 dark:bg-amber-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Ngambang</p>
+                        <h4 class="text-2xl font-bold text-amber-700 dark:text-amber-300">{{ number_format($ngambang) }} <span class="text-xs font-normal text-gray-500 dark:text-gray-400">Penduduk</span></h4>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Status Lawan --}}
+            <div class="rounded-2xl border border-rose-200 bg-rose-50/50 p-5 shadow-xs dark:border-rose-900/40 dark:bg-rose-950/20">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500 text-white shadow-md shadow-rose-500/20 dark:bg-rose-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">Lawan</p>
+                        <h4 class="text-2xl font-bold text-rose-700 dark:text-rose-300">{{ number_format($lawan) }} <span class="text-xs font-normal text-gray-500 dark:text-gray-400">Penduduk</span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- DataTable Component --}}
         <x-datatable
             :config="$config"
@@ -337,10 +400,10 @@
 
     {{-- Import Modal Component --}}
     <x-ui.import-modal
+        module="civil"
         :action="route('civils.import')"
         title="Impor Data Penduduk"
         description="Unggah file Excel untuk memproses impor data warga secara otomatis di background."
-        :templateUrl="asset('templates/template_civil.xlsx')"
         :validationRules="[
             '<strong>NIK</strong>: Wajib, 16 digit angka (unik).',
             '<strong>KK</strong>: 16 digit angka (opsional).',

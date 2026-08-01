@@ -173,8 +173,6 @@ class CivilDataTable implements DataTableDefinition
                 ->icon('plus')
                 ->emitEvent('open-civil-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
         ];
     }
 

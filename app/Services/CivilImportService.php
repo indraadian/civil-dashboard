@@ -18,7 +18,7 @@ class CivilImportService
      *
      * @return CivilImport Record import yang baru dibuat
      */
-    public function initiate(ImportCivilRequest $request): CivilImport
+    public function initiate(\Illuminate\Http\Request $request, ?string $actionClass = null): CivilImport
     {
         $file     = $request->file('file');
         $filename = $file->getClientOriginalName();
@@ -35,14 +35,14 @@ class CivilImportService
             'created_by'  => $request->user()->id,
         ]);
 
-        Log::info('CivilImport dimulai.', [
+        Log::info('Import dimulai.', [
             'import_id' => $import->id,
             'filename'  => $filename,
             'path'      => $path,
             'user_id'   => $import->created_by,
         ]);
 
-        ProcessCivilImportJob::dispatch($import);
+        ProcessCivilImportJob::dispatch($import, $actionClass);
 
         return $import;
     }

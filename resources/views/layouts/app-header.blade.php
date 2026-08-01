@@ -49,9 +49,9 @@
             </button>
 
             <!-- Logo (mobile only) -->
-            <a href="/" class="xl:hidden">
-                <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-                <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+            <a href="/" class="xl:hidden flex items-center gap-2.5">
+                <img src="/images/logo/logo-app.png" alt="QuickCount PILKADES Logo" class="h-9 w-9 rounded-lg object-contain" />
+                <span class="text-sm font-black text-gray-900 dark:text-white tracking-tight">QuickCount</span>
             </a>
 
             <!-- Application Menu Toggle (mobile only) -->

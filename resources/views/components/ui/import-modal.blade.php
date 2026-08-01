@@ -1,19 +1,11 @@
 @props([
+    'module' => null,
     'action' => null,
-    'title' => 'Impor Data Penduduk',
+    'title' => 'Impor Data',
     'description' => 'Unggah file Excel/CSV untuk memproses impor data secara otomatis di background.',
-    'templateUrl' => asset('templates/template_civil.xlsx'),
-    'templateTitle' => 'Template Excel Standard',
-    'validationRules' => [
-        '<strong>NIK</strong>: Wajib, 16 digit angka (unik).',
-        '<strong>KK</strong>: 16 digit angka (opsional).',
-        '<strong>Nama & Alamat</strong>: Wajib diisi.',
-        '<strong>Tanggal Lahir</strong>: Format `DD-MM-YYYY` (contoh: 15-08-1995).',
-        '<strong>Jenis Kelamin</strong>: `L` (Laki-Laki) atau `P` (Perempuan).',
-        '<strong>RT & RW</strong>: Format 3 digit (contoh: `001`, `002`).',
-        '<strong>Tipe Lokasi</strong>: `kampung` / `village` atau `housing` / `perumahan`.',
-        '<strong>Status</strong>: `Militan`, `Ngambang`, atau `Lawan` (default: Ngambang).',
-    ],
+    'templateUrl' => null,
+    'templateTitle' => null,
+    'validationRules' => null,
     'maxSize' => '10MB',
     'accept' => '.xlsx,.csv',
     'eventName' => 'open-import-modal',
@@ -21,6 +13,11 @@
 
 @php
     $targetAction = $action ?? (Route::has('civils.import') ? route('civils.import') : '#');
+    $config = config("import_templates.{$module}");
+
+    $resolvedTemplateUrl = $templateUrl ?? ($config ? route('imports.template', $module) : ($module ? asset("templates/template_{$module}.xlsx") : null));
+    $resolvedTemplateTitle = $templateTitle ?? ($config['title'] ?? 'Template Excel Standard');
+    $resolvedValidationRules = $validationRules ?? ($config['validationRules'] ?? null);
 @endphp
 
 <x-ui.modal x-data="{ open: false }" :isOpen="false" class="max-w-[700px]">
@@ -53,7 +50,7 @@
             @csrf
 
             {{-- Download Template Box (opsional) --}}
-            @if ($templateUrl)
+            @if ($resolvedTemplateUrl)
                 <div class="flex items-center justify-between rounded-2xl border border-brand-100 bg-brand-50/50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10">
                     <div class="flex items-center gap-3">
                         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-white">
@@ -62,11 +59,11 @@
                             </svg>
                         </div>
                         <div>
-                            <h6 class="text-xs font-semibold text-gray-800 dark:text-white">{{ $templateTitle }}</h6>
+                            <h6 class="text-xs font-semibold text-gray-800 dark:text-white">{{ $resolvedTemplateTitle }}</h6>
                             <p class="text-[11px] text-gray-500 dark:text-gray-400">Gunakan format kolom yang sesuai agar data tervalidasi dengan benar.</p>
                         </div>
                     </div>
-                    <a href="{{ $templateUrl }}" download
+                    <a href="{{ $resolvedTemplateUrl }}" download
                         class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-brand-600 shadow-xs hover:bg-brand-50 dark:bg-gray-800 dark:text-brand-400 dark:hover:bg-gray-700">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -118,7 +115,7 @@
             </div>
 
             {{-- Validation Rules Accordion --}}
-            @if (!empty($validationRules))
+            @if (!empty($resolvedValidationRules))
                 <div x-data="{ showRules: false }" class="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
                     <button type="button" @click="showRules = !showRules"
                         class="flex w-full items-center justify-between bg-gray-50 px-4 py-2.5 text-xs font-semibold text-gray-700 dark:bg-white/[0.02] dark:text-gray-300">
@@ -128,7 +125,7 @@
                         </svg>
                     </button>
                     <div x-show="showRules" x-cloak class="p-4 text-xs space-y-1.5 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-                        @foreach ($validationRules as $rule)
+                        @foreach ($resolvedValidationRules as $rule)
                             <p>• {!! $rule !!}</p>
                         @endforeach
                     </div>

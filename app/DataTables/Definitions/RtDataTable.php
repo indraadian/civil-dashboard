@@ -108,11 +108,29 @@ class RtDataTable implements DataTableDefinition
     public function toolbarActions(): array
     {
         return [
+            ToolbarAction::make('export')
+                ->label('Ekspor')
+                ->icon('download')
+                ->url('/settings/rts/export')
+                ->variant('secondary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
+
+            ToolbarAction::make('import')
+                ->label('Impor')
+                ->icon('upload')
+                ->emitEvent('open-import-modal')
+                ->variant('primary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
+
             ToolbarAction::make('create')
                 ->label('Tambah RT')
                 ->icon('plus')
                 ->emitEvent('open-rt-modal')
-                ->variant('primary'),
+                ->variant('primary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
         ];
     }
 

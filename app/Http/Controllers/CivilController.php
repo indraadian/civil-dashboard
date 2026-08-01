@@ -38,7 +38,17 @@ class CivilController extends Controller
     {
         $config = $this->dataTableConfig(new CivilDataTable());
 
-        return view('pages.civil.civils', compact('config'));
+        $totalWarga = Civil::count();
+        $statusCounts = Civil::select('status', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        $militan = $statusCounts['Militan'] ?? 0;
+        $ngambang = $statusCounts['Ngambang'] ?? 0;
+        $lawan = $statusCounts['Lawan'] ?? 0;
+
+        return view('pages.civil.index', compact('config', 'totalWarga', 'militan', 'ngambang', 'lawan'));
     }
 
     /**

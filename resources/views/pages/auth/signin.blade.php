@@ -82,8 +82,9 @@
                     <!-- ===== Common Grid Shape Start ===== -->
                     <x-common.common-grid-shape />
                     <div class="flex max-w-xs flex-col items-center">
-                        <a href="/" class="mb-4 block">
-                            <img src="./images/logo/auth-logo.svg" alt="Logo" />
+                        <a href="/" class="mb-4 flex flex-col items-center gap-3">
+                            <img src="/images/logo/logo-app.png" alt="QuickCount PILKADES Logo" class="h-28 w-28 rounded-2xl object-contain drop-shadow-xl" />
+                            <span class="text-2xl font-black text-white tracking-tight">QuickCount PILKADES</span>
                         </a>
                         <p class="text-center text-gray-400 dark:text-white/60">
                             © 2026 <a target="_blank" href="https://indraadian.github.io/fortopolio/"

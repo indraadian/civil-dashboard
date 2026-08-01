@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\DataTables\Definitions\RwDataTable;
 use App\Http\Traits\HasDataTable;
 use App\Models\Rw;
+use App\Services\RwExportService;
+use App\Services\RwImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,11 @@ use Illuminate\View\View;
 class RwController extends Controller
 {
     use HasDataTable;
+
+    public function __construct(
+        private readonly RwExportService $exportService,
+        private readonly RwImportService $importService,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -85,6 +92,34 @@ class RwController extends Controller
             'status'  => 'success',
             'message' => 'Data RW terpilih berhasil dihapus.',
         ]);
+    }
+
+    public function export(Request $request): RedirectResponse
+    {
+        $export = $this->exportService->initiate(
+            userId: $request->user()->id,
+            filters: $request->all(),
+            format: $request->input('format', 'xlsx')
+        );
+
+        return back()->with(
+            'info',
+            "File sedang dibuat di background. ID Export: #{$export->id}. Anda akan diberitahu ketika file siap diunduh."
+        );
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:5120'],
+        ]);
+
+        $import = $this->importService->initiate($request);
+
+        return back()->with(
+            'info',
+            "File sedang diproses di background. ID Import: #{$import->id}. Anda akan diberitahu ketika selesai."
+        );
     }
 
     public function getRts(Rw $rw): JsonResponse

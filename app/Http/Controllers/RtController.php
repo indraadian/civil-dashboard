@@ -6,6 +6,8 @@ use App\DataTables\Definitions\RtDataTable;
 use App\Http\Traits\HasDataTable;
 use App\Models\Rt;
 use App\Models\Rw;
+use App\Services\RtExportService;
+use App\Services\RtImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +16,11 @@ use Illuminate\View\View;
 class RtController extends Controller
 {
     use HasDataTable;
+
+    public function __construct(
+        private readonly RtExportService $exportService,
+        private readonly RtImportService $importService,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -105,5 +112,33 @@ class RtController extends Controller
             'status'  => 'success',
             'message' => 'Data RT terpilih berhasil dihapus.',
         ]);
+    }
+
+    public function export(Request $request): RedirectResponse
+    {
+        $export = $this->exportService->initiate(
+            userId: $request->user()->id,
+            filters: $request->all(),
+            format: $request->input('format', 'xlsx')
+        );
+
+        return back()->with(
+            'info',
+            "File sedang dibuat di background. ID Export: #{$export->id}. Anda akan diberitahu ketika file siap diunduh."
+        );
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:5120'],
+        ]);
+
+        $import = $this->importService->initiate($request);
+
+        return back()->with(
+            'info',
+            "File sedang diproses di background. ID Import: #{$import->id}. Anda akan diberitahu ketika selesai."
+        );
     }
 }

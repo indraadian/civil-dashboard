@@ -117,4 +117,23 @@
             }).then(() => window.location.reload());
         }
     </script>
+    {{-- Export Modal --}}
+    <x-ui.export-modal
+        :action="route('settings.rws.export')"
+        title="Ekspor Master RW"
+        description="Pilih format file untuk mengunduh data Master RW."
+    />
+
+    {{-- Import Modal --}}
+    <x-ui.import-modal
+        module="rw"
+        :action="route('settings.rws.import')"
+        title="Impor Master RW"
+        description="Unggah file CSV / Excel untuk mengimpor atau memperbarui data Master RW."
+        :validationRules="[
+            '<strong>Kode RW</strong>: Wajib, format 3 digit (contoh: `001`, `002`).',
+            '<strong>Nama RW</strong>: Nama lengkap RW (opsional, contoh: `RW 001 Sukamaju`).',
+            '<strong>Status</strong>: `Aktif` atau `Non-Aktif` (default: Aktif).',
+        ]"
+    />
 @endsection
