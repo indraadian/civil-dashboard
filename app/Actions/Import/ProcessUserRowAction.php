@@ -18,7 +18,7 @@ class ProcessUserRowAction
             return;
         }
 
-        if (!in_array($role, ['admin', 'rw', 'rt', 'user'])) {
+        if (!in_array($role, ['super_admin', 'admin', 'rw', 'rt', 'user'])) {
             $role = 'user';
         }
 
