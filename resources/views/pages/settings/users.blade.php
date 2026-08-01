@@ -59,10 +59,11 @@
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Role Sistem <span
                                 class="text-red-500">*</span></label>
-                        <select name="role" x-model="role"
+                        <select name="role" x-model="role" required
                             class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                            <option value="user">User (Dibatasi Wilayah)</option>
-                            <option value="admin">Admin (Akses Operasional)</option>
+                            @foreach ($roles as $r)
+                                <option value="{{ $r->name }}">{{ $r->name }} {{ $r->name === 'User' ? '(Dibatasi Wilayah)' : '' }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
@@ -80,7 +81,7 @@
                 </div>
 
                 {{-- Scope Wilayah Section --}}
-                <div x-show="role === 'user'" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div x-show="role.toLowerCase() === 'user'" class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <label class="text-sm font-semibold text-gray-800 dark:text-white">Pengaturan Hak Akses
                             Wilayah</label>
@@ -186,10 +187,11 @@
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Role Sistem</label>
-                        <select name="role" x-model="role"
+                        <select name="role" x-model="role" required
                             class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                            <option value="user">User (Dibatasi Wilayah)</option>
-                            <option value="admin">Admin (Akses Operasional)</option>
+                            @foreach ($roles as $r)
+                                <option value="{{ $r->name }}">{{ $r->name }} {{ $r->name === 'User' ? '(Dibatasi Wilayah)' : '' }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
@@ -207,7 +209,7 @@
                 </div>
 
                 {{-- Scope Wilayah Section --}}
-                <div x-show="role === 'user'" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div x-show="role.toLowerCase() === 'user'" class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <label class="text-sm font-semibold text-gray-800 dark:text-white">Pengaturan Hak Akses
                             Wilayah</label>
@@ -295,13 +297,13 @@
                 scopes: [],
                 openModal() {
                     this.open = true;
-                    this.role = 'user';
+                    this.role = 'User';
                     this.scopes = [{ rw_id: '', all_rts: true, selected_rt_ids: [] }];
                 },
                 openEditModal(user) {
                     this.open = true;
                     this.formData = user;
-                    this.role = user.role;
+                    this.role = user.spatie_role || user.role;
                     this.scopes = [];
 
                     if (user.location_scopes && user.location_scopes.length > 0) {

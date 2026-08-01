@@ -5,7 +5,9 @@ use App\Http\Controllers\CivilController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportTemplateController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\QuickCountController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RtController;
 use App\Http\Controllers\RwController;
 use App\Http\Controllers\SettingController;
@@ -33,23 +35,67 @@ Route::post('/register', [AuthController::class, 'showRegistrationForm'])->name(
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::middleware('permission:dashboard.view')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    });
 
-    // Civils — accessible by all authenticated users
-    Route::get('/civils', [CivilController::class, 'index'])->name('civils');
-    Route::get('/civils/data', [CivilController::class, 'data'])->name('api.civils.data');
-    Route::get('/civils/{civil}/edit', [CivilController::class, 'edit'])->name('civils.edit');
-    Route::put('/civils/{civil}', [CivilController::class, 'update'])->name('civils.update');
+    // Civils management
+    Route::middleware('permission:civil.view')->group(function () {
+        Route::get('/civils', [CivilController::class, 'index'])->name('civils');
+        Route::get('/civils/data', [CivilController::class, 'data'])->name('api.civils.data');
+    });
+
+    Route::middleware('permission:civil.create')->group(function () {
+        Route::post('/civils', [CivilController::class, 'store'])->name('civils.store');
+    });
+
+    Route::middleware('permission:civil.update')->group(function () {
+        Route::get('/civils/{civil}/edit', [CivilController::class, 'edit'])->name('civils.edit');
+        Route::put('/civils/{civil}', [CivilController::class, 'update'])->name('civils.update');
+    });
+
+    Route::middleware('permission:civil.delete')->group(function () {
+        Route::delete('/civils/{civil}', [CivilController::class, 'destroy'])->name('civils.destroy');
+        Route::post('/civils/delete-bulk', [CivilController::class, 'destroyBulk'])->name('civils.destroyBulk');
+    });
+
+    Route::middleware('permission:civil.export')->group(function () {
+        Route::post('/civils/export', [CivilController::class, 'export'])->name('civils.export');
+    });
+
+    Route::middleware('permission:civil.import')->group(function () {
+        Route::post('/civils/import', [CivilController::class, 'import'])->name('civils.import');
+    });
 
     // Quick Count TPS
-    Route::get('/quick-counts', [QuickCountController::class, 'index'])->name('quick-counts.index');
-    Route::get('/quick-counts/data', [QuickCountController::class, 'data'])->name('quick-counts.data');
-    Route::post('/quick-counts', [QuickCountController::class, 'store'])->name('quick-counts.store');
-    Route::get('/quick-counts/{quickCount}/edit', [QuickCountController::class, 'edit'])->name('quick-counts.edit');
-    Route::put('/quick-counts/{quickCount}', [QuickCountController::class, 'update'])->name('quick-counts.update');
-    Route::delete('/quick-counts/{quickCount}', [QuickCountController::class, 'destroy'])->name('quick-counts.destroy');
-    Route::post('/quick-counts/delete-bulk', [QuickCountController::class, 'destroyBulk'])->name('quick-counts.destroyBulk');
+    Route::middleware('permission:quick-count.view')->group(function () {
+        Route::get('/quick-counts', [QuickCountController::class, 'index'])->name('quick-counts.index');
+        Route::get('/quick-counts/data', [QuickCountController::class, 'data'])->name('quick-counts.data');
+    });
 
+    Route::middleware('permission:quick-count.create')->group(function () {
+        Route::post('/quick-counts', [QuickCountController::class, 'store'])->name('quick-counts.store');
+    });
+
+    Route::middleware('permission:quick-count.update')->group(function () {
+        Route::get('/quick-counts/{quickCount}/edit', [QuickCountController::class, 'edit'])->name('quick-counts.edit');
+        Route::put('/quick-counts/{quickCount}', [QuickCountController::class, 'update'])->name('quick-counts.update');
+    });
+
+    Route::middleware('permission:quick-count.delete')->group(function () {
+        Route::delete('/quick-counts/{quickCount}', [QuickCountController::class, 'destroy'])->name('quick-counts.destroy');
+        Route::post('/quick-counts/delete-bulk', [QuickCountController::class, 'destroyBulk'])->name('quick-counts.destroyBulk');
+    });
+
+    Route::middleware('permission:quick-count.export')->group(function () {
+        Route::match(['get', 'post'], '/quick-counts/export', [QuickCountController::class, 'export'])->name('quick-counts.export');
+    });
+
+    Route::middleware('permission:quick-count.import')->group(function () {
+        Route::post('/quick-counts/import', [QuickCountController::class, 'import'])->name('quick-counts.import');
+    });
+
+    // Template, Progress, Tasks & Notifications
     Route::get('/imports/template/{module}', [ImportTemplateController::class, 'download'])->name('imports.template');
     Route::get('/imports/{import}', [CivilController::class, 'importProgress'])->name('civils.import.progress');
     Route::get('/imports/{import}/report', [CivilController::class, 'importReport'])->name('civils.import.report');
@@ -57,82 +103,157 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exports/{export}/download', [CivilController::class, 'exportDownload'])->name('civils.export.download');
     Route::get('/active-tasks', [CivilController::class, 'activeTasks'])->name('civils.active-tasks');
 
-    // Notifications API
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-
-    // Helper API for RW -> RT dropdowns
     Route::get('/api/rws/{rw}/rts', [RwController::class, 'getRts'])->name('api.rws.rts');
     Route::get('/api/dashboard/stats', [DashboardController::class, 'stats'])->name('api.dashboard.stats');
 
-    // Master TPS (Viewable by all roles)
-    Route::get('/settings/tps', [TpsController::class, 'index'])->name('settings.tps');
-    Route::get('/settings/tps/data', [TpsController::class, 'data'])->name('settings.tps.data');
+    // Settings index
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
 
-    // Admin & Super Admin operational routes
-    Route::middleware(['role:admin'])->group(function () {
-
-        // Civils management
-        Route::post('/civils', [CivilController::class, 'store'])->name('civils.store');
-        Route::delete('/civils/{civil}', [CivilController::class, 'destroy'])->name('civils.destroy');
-        Route::post('/civils/delete-bulk', [CivilController::class, 'destroyBulk'])->name('civils.destroyBulk');
-        Route::post('/civils/export', [CivilController::class, 'export'])->name('civils.export');
-        Route::post('/civils/import', [CivilController::class, 'import'])->name('civils.import');
-
-        // Settings index
-        Route::get('/settings', [SettingController::class, 'index'])->name('settings');
-
-        // User management
+    // User management
+    Route::middleware('permission:user.view')->group(function () {
         Route::get('/settings/users', [SettingController::class, 'users'])->name('settings.users');
         Route::get('/settings/users/data', [SettingController::class, 'usersData'])->name('settings.users.data');
-        Route::post('/settings/users', [SettingController::class, 'storeUser'])->name('settings.users.store');
-        Route::get('/settings/users/{user}/edit', [SettingController::class, 'editUser'])->name('settings.users.edit');
-        Route::put('/settings/users/{user}', [SettingController::class, 'updateUser'])->name('settings.users.update');
-        Route::delete('/settings/users/{user}', [SettingController::class, 'destroyUser'])->name('settings.users.destroy');
-        Route::post('/settings/users/delete-bulk', [SettingController::class, 'destroyUsersBulk'])->name('settings.users.destroyBulk');
-
-        // Master RW management
-        Route::get('/settings/rws', [RwController::class, 'index'])->name('settings.rws');
-        Route::get('/settings/rws/data', [RwController::class, 'data'])->name('settings.rws.data');
-        Route::post('/settings/rws', [RwController::class, 'store'])->name('settings.rws.store');
-        Route::match(['get', 'post'], '/settings/rws/export', [RwController::class, 'export'])->name('settings.rws.export');
-        Route::post('/settings/rws/import', [RwController::class, 'import'])->name('settings.rws.import');
-        Route::get('/settings/rws/{rw}/edit', [RwController::class, 'edit'])->name('settings.rws.edit');
-        Route::put('/settings/rws/{rw}', [RwController::class, 'update'])->name('settings.rws.update');
-        Route::delete('/settings/rws/{rw}', [RwController::class, 'destroy'])->name('settings.rws.destroy');
-        Route::post('/settings/rws/delete-bulk', [RwController::class, 'destroyBulk'])->name('settings.rws.destroyBulk');
-
-        // Master RT management
-        Route::get('/settings/rts', [RtController::class, 'index'])->name('settings.rts');
-        Route::get('/settings/rts/data', [RtController::class, 'data'])->name('settings.rts.data');
-        Route::post('/settings/rts', [RtController::class, 'store'])->name('settings.rts.store');
-        Route::match(['get', 'post'], '/settings/rts/export', [RtController::class, 'export'])->name('settings.rts.export');
-        Route::post('/settings/rts/import', [RtController::class, 'import'])->name('settings.rts.import');
-        Route::get('/settings/rts/{rt}/edit', [RtController::class, 'edit'])->name('settings.rts.edit');
-        Route::put('/settings/rts/{rt}', [RtController::class, 'update'])->name('settings.rts.update');
-        Route::delete('/settings/rts/{rt}', [RtController::class, 'destroy'])->name('settings.rts.destroy');
-        Route::post('/settings/rts/delete-bulk', [RtController::class, 'destroyBulk'])->name('settings.rts.destroyBulk');
-
-        // User Management write actions & import/export
-        Route::match(['get', 'post'], '/settings/users/export', [SettingController::class, 'exportUsers'])->name('settings.users.export');
-        Route::post('/settings/users/import', [SettingController::class, 'importUsers'])->name('settings.users.import');
-
-        // Master TPS write actions & import/export (Admin / Super Admin)
-        Route::post('/settings/tps', [TpsController::class, 'store'])->name('settings.tps.store');
-        Route::match(['get', 'post'], '/settings/tps/export', [TpsController::class, 'export'])->name('settings.tps.export');
-        Route::post('/settings/tps/import', [TpsController::class, 'import'])->name('settings.tps.import');
-        Route::get('/settings/tps/{tp}/edit', [TpsController::class, 'edit'])->name('settings.tps.edit');
-        Route::put('/settings/tps/{tp}', [TpsController::class, 'update'])->name('settings.tps.update');
-        Route::delete('/settings/tps/{tp}', [TpsController::class, 'destroy'])->name('settings.tps.destroy');
-        Route::post('/settings/tps/delete-bulk', [TpsController::class, 'destroyBulk'])->name('settings.tps.destroyBulk');
-
-        // Quick Count export & import (Admin / Super Admin)
-        Route::match(['get', 'post'], '/quick-counts/export', [QuickCountController::class, 'export'])->name('quick-counts.export');
-        Route::post('/quick-counts/import', [QuickCountController::class, 'import'])->name('quick-counts.import');
     });
 
-    // Super Admin ONLY maintenance routes
-    Route::middleware('role:super_admin')->group(function () {
+    Route::middleware('permission:user.create')->group(function () {
+        Route::post('/settings/users', [SettingController::class, 'storeUser'])->name('settings.users.store');
+    });
+
+    Route::middleware('permission:user.update')->group(function () {
+        Route::get('/settings/users/{user}/edit', [SettingController::class, 'editUser'])->name('settings.users.edit');
+        Route::put('/settings/users/{user}', [SettingController::class, 'updateUser'])->name('settings.users.update');
+    });
+
+    Route::middleware('permission:user.delete')->group(function () {
+        Route::delete('/settings/users/{user}', [SettingController::class, 'destroyUser'])->name('settings.users.destroy');
+        Route::post('/settings/users/delete-bulk', [SettingController::class, 'destroyUsersBulk'])->name('settings.users.destroyBulk');
+    });
+
+    Route::middleware('permission:user.export')->group(function () {
+        Route::match(['get', 'post'], '/settings/users/export', [SettingController::class, 'exportUsers'])->name('settings.users.export');
+    });
+
+    Route::middleware('permission:user.import')->group(function () {
+        Route::post('/settings/users/import', [SettingController::class, 'importUsers'])->name('settings.users.import');
+    });
+
+    // Role management
+    Route::middleware('permission:role.view')->group(function () {
+        Route::get('/settings/roles', [RoleController::class, 'index'])->name('settings.roles');
+        Route::get('/settings/roles/data', [RoleController::class, 'data'])->name('settings.roles.data');
+        Route::get('/settings/roles/{role}/edit', [RoleController::class, 'edit'])->name('settings.roles.edit');
+    });
+
+    Route::middleware('permission:role.create')->group(function () {
+        Route::post('/settings/roles', [RoleController::class, 'store'])->name('settings.roles.store');
+    });
+
+    Route::middleware('permission:role.update')->group(function () {
+        Route::put('/settings/roles/{role}', [RoleController::class, 'update'])->name('settings.roles.update');
+    });
+
+    Route::middleware('permission:role.delete')->group(function () {
+        Route::delete('/settings/roles/{role}', [RoleController::class, 'destroy'])->name('settings.roles.destroy');
+    });
+
+    // Permission management
+    Route::middleware('permission:permission.view')->group(function () {
+        Route::get('/settings/permissions', [PermissionController::class, 'index'])->name('settings.permissions');
+        Route::get('/settings/permissions/data', [PermissionController::class, 'data'])->name('settings.permissions.data');
+    });
+
+    Route::middleware('permission:permission.sync')->group(function () {
+        Route::post('/settings/permissions/sync', [PermissionController::class, 'sync'])->name('settings.permissions.sync');
+    });
+
+    // Master TPS management
+    Route::middleware('permission:tps.view')->group(function () {
+        Route::get('/settings/tps', [TpsController::class, 'index'])->name('settings.tps');
+        Route::get('/settings/tps/data', [TpsController::class, 'data'])->name('settings.tps.data');
+    });
+
+    Route::middleware('permission:tps.create')->group(function () {
+        Route::post('/settings/tps', [TpsController::class, 'store'])->name('settings.tps.store');
+    });
+
+    Route::middleware('permission:tps.update')->group(function () {
+        Route::get('/settings/tps/{tp}/edit', [TpsController::class, 'edit'])->name('settings.tps.edit');
+        Route::put('/settings/tps/{tp}', [TpsController::class, 'update'])->name('settings.tps.update');
+    });
+
+    Route::middleware('permission:tps.delete')->group(function () {
+        Route::delete('/settings/tps/{tp}', [TpsController::class, 'destroy'])->name('settings.tps.destroy');
+        Route::post('/settings/tps/delete-bulk', [TpsController::class, 'destroyBulk'])->name('settings.tps.destroyBulk');
+    });
+
+    Route::middleware('permission:tps.export')->group(function () {
+        Route::match(['get', 'post'], '/settings/tps/export', [TpsController::class, 'export'])->name('settings.tps.export');
+    });
+
+    Route::middleware('permission:tps.import')->group(function () {
+        Route::post('/settings/tps/import', [TpsController::class, 'import'])->name('settings.tps.import');
+    });
+
+    // Master RW management
+    Route::middleware('permission:rw.view')->group(function () {
+        Route::get('/settings/rws', [RwController::class, 'index'])->name('settings.rws');
+        Route::get('/settings/rws/data', [RwController::class, 'data'])->name('settings.rws.data');
+    });
+
+    Route::middleware('permission:rw.create')->group(function () {
+        Route::post('/settings/rws', [RwController::class, 'store'])->name('settings.rws.store');
+    });
+
+    Route::middleware('permission:rw.update')->group(function () {
+        Route::get('/settings/rws/{rw}/edit', [RwController::class, 'edit'])->name('settings.rws.edit');
+        Route::put('/settings/rws/{rw}', [RwController::class, 'update'])->name('settings.rws.update');
+    });
+
+    Route::middleware('permission:rw.delete')->group(function () {
+        Route::delete('/settings/rws/{rw}', [RwController::class, 'destroy'])->name('settings.rws.destroy');
+        Route::post('/settings/rws/delete-bulk', [RwController::class, 'destroyBulk'])->name('settings.rws.destroyBulk');
+    });
+
+    Route::middleware('permission:rw.export')->group(function () {
+        Route::match(['get', 'post'], '/settings/rws/export', [RwController::class, 'export'])->name('settings.rws.export');
+    });
+
+    Route::middleware('permission:rw.import')->group(function () {
+        Route::post('/settings/rws/import', [RwController::class, 'import'])->name('settings.rws.import');
+    });
+
+    // Master RT management
+    Route::middleware('permission:rt.view')->group(function () {
+        Route::get('/settings/rts', [RtController::class, 'index'])->name('settings.rts');
+        Route::get('/settings/rts/data', [RtController::class, 'data'])->name('settings.rts.data');
+    });
+
+    Route::middleware('permission:rt.create')->group(function () {
+        Route::post('/settings/rts', [RtController::class, 'store'])->name('settings.rts.store');
+    });
+
+    Route::middleware('permission:rt.update')->group(function () {
+        Route::get('/settings/rts/{rt}/edit', [RtController::class, 'edit'])->name('settings.rts.edit');
+        Route::put('/settings/rts/{rt}', [RtController::class, 'update'])->name('settings.rts.update');
+    });
+
+    Route::middleware('permission:rt.delete')->group(function () {
+        Route::delete('/settings/rts/{rt}', [RtController::class, 'destroy'])->name('settings.rts.destroy');
+        Route::post('/settings/rts/delete-bulk', [RtController::class, 'destroyBulk'])->name('settings.rts.destroyBulk');
+    });
+
+    Route::middleware('permission:rt.export')->group(function () {
+        Route::match(['get', 'post'], '/settings/rts/export', [RtController::class, 'export'])->name('settings.rts.export');
+    });
+
+    Route::middleware('permission:rt.import')->group(function () {
+        Route::post('/settings/rts/import', [RtController::class, 'import'])->name('settings.rts.import');
+    });
+
+    // Maintenance / System routes
+    Route::middleware('permission:migration.run')->group(function () {
         Route::get('/settings/general', [SettingController::class, 'general'])->name('settings.general');
         Route::post('/settings/migrate', [SettingController::class, 'migrate'])->name('settings.migrate');
         Route::post('/settings/patch-locations', [SettingController::class, 'patchLocations'])->name('settings.patch-locations');

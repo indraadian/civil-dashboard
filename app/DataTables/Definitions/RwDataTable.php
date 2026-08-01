@@ -76,13 +76,15 @@ class RwDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-rw-modal'),
+                ->emitEvent('open-edit-rw-modal')
+                ->requiresPermission('rw.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
-                ->confirmMessage('Yakin ingin menghapus RW ini?'),
+                ->confirmMessage('Yakin ingin menghapus RW ini?')
+                ->requiresPermission('rw.delete'),
         ];
     }
 
@@ -92,7 +94,8 @@ class RwDataTable implements DataTableDefinition
             BulkAction::make('delete')
                 ->label('Hapus')
                 ->endpoint('/settings/rws/delete-bulk')
-                ->confirmMessage('Yakin ingin menghapus data RW terpilih?'),
+                ->confirmMessage('Yakin ingin menghapus data RW terpilih?')
+                ->requiresPermission('rw.delete'),
         ];
     }
 
@@ -104,24 +107,21 @@ class RwDataTable implements DataTableDefinition
                 ->icon('download')
                 ->url('/settings/rws/export')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('rw.export'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('rw.import'),
 
             ToolbarAction::make('create')
                 ->label('Tambah RW')
                 ->icon('plus')
                 ->emitEvent('open-rw-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('rw.create'),
         ];
     }
 

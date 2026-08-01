@@ -10,6 +10,7 @@ class BulkAction
     protected string $method = 'POST';
     protected ?string $confirmMessage = null;
     protected array $requiresRoles = [];
+    protected array $requiresPermissions = [];
 
     public function __construct(string $name)
     {
@@ -53,6 +54,23 @@ class BulkAction
         return $this;
     }
 
+    /**
+     * Restrict this action to specific permission(s).
+     */
+    public function requiresPermission(string|array ...$permissions): static
+    {
+        foreach ($permissions as $permission) {
+            if (is_array($permission)) {
+                $this->requiresPermissions = array_merge($this->requiresPermissions, $permission);
+            } else {
+                $this->requiresPermissions[] = $permission;
+            }
+        }
+        $this->requiresPermissions = array_unique($this->requiresPermissions);
+
+        return $this;
+    }
+
     public function requiresRole(string|array ...$roles): static
     {
         foreach ($roles as $role) {
@@ -72,13 +90,27 @@ class BulkAction
      */
     public function isAuthorized(): bool
     {
-        if (empty($this->requiresRoles)) {
-            return true;
-        }
-
         $user = auth()->user();
 
-        return $user && in_array($user->role, $this->requiresRoles, true);
+        if (!$user) {
+            return false;
+        }
+
+        if (!empty($this->requiresPermissions)) {
+            foreach ($this->requiresPermissions as $permission) {
+                if ($user->can($permission)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (!empty($this->requiresRoles)) {
+            return in_array($user->role, $this->requiresRoles, true) || $user->hasAnyRole($this->requiresRoles);
+        }
+
+        return true;
     }
 
     /**

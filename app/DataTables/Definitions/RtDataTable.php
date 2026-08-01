@@ -85,13 +85,15 @@ class RtDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-rt-modal'),
+                ->emitEvent('open-edit-rt-modal')
+                ->requiresPermission('rt.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
-                ->confirmMessage('Yakin ingin menghapus RT ini?'),
+                ->confirmMessage('Yakin ingin menghapus RT ini?')
+                ->requiresPermission('rt.delete'),
         ];
     }
 
@@ -101,7 +103,8 @@ class RtDataTable implements DataTableDefinition
             BulkAction::make('delete')
                 ->label('Hapus')
                 ->endpoint('/settings/rts/delete-bulk')
-                ->confirmMessage('Yakin ingin menghapus data RT terpilih?'),
+                ->confirmMessage('Yakin ingin menghapus data RT terpilih?')
+                ->requiresPermission('rt.delete'),
         ];
     }
 
@@ -113,24 +116,21 @@ class RtDataTable implements DataTableDefinition
                 ->icon('download')
                 ->url('/settings/rts/export')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('rt.export'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('rt.import'),
 
             ToolbarAction::make('create')
                 ->label('Tambah RT')
                 ->icon('plus')
                 ->emitEvent('open-rt-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('rt.create'),
         ];
     }
 
