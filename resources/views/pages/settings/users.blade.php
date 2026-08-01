@@ -356,4 +356,25 @@
             }).then(() => window.location.reload());
         }
     </script>
+
+    {{-- Export Modal Component --}}
+    <x-ui.export-modal
+        :action="route('settings.users.export')"
+        title="Ekspor Data User"
+        description="Pilih format file untuk mengunduh daftar pengguna."
+    />
+
+    {{-- Import Modal Component --}}
+    <x-ui.import-modal
+        module="user"
+        :action="route('settings.users.import')"
+        title="Impor Data User"
+        description="Unggah file CSV / Excel untuk mengimpor atau memperbarui data akun pengguna."
+        :validationRules="[
+            '<strong>Nama Lengkap</strong>: Wajib diisi.',
+            '<strong>Email</strong>: Email unik pengguna.',
+            '<strong>Role</strong>: `admin`, `rw`, `rt`, atau `user` (default: `user`).',
+            '<strong>Password</strong>: Password akun (default: `12345678`).',
+        ]"
+    />
 @endsection

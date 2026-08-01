@@ -41,7 +41,7 @@ class Civil extends Model
         $scopes = $user->locationScopes()->with(['rw', 'rt'])->get();
 
         if ($scopes->isEmpty()) {
-            return $query->whereRaw('1 = 0');
+            return $query;
         }
 
         return $query->where(function ($q) use ($scopes) {

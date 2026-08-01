@@ -1,222 +1,75 @@
-# Refactor Plan - Migrate Hardcoded CRUD to Configuration-Driven Architecture
+# 7. Import Template
 
-## Background
+## Problem
 
-Project ini telah memiliki sebuah CRUD Engine berbasis **Configuration-Driven Architecture**.
+Saat ini seluruh module masih menggunakan template Import milik module Civil.
 
-Module **Civil** merupakan implementasi referensi (gold standard) dan telah mengikuti arsitektur yang diinginkan.
+Akibatnya:
 
-Namun implementasi terbaru untuk module:
+- Format template tidak sesuai dengan kebutuhan masing-masing module.
+- Perubahan template pada Civil dapat mempengaruhi module lain.
+- Setiap module tidak dapat memiliki struktur import yang berbeda.
 
-* User
-* RW
-* RT
+## Expected Result
 
-dibuat secara hardcode sehingga tidak mengikuti pola yang telah digunakan oleh module Civil.
+Setiap module harus memiliki template Import masing-masing.
 
-Hal ini menyebabkan inkonsistensi arsitektur, duplikasi kode, dan menyulitkan maintenance.
+Contoh:
 
-Seluruh implementasi tersebut harus direfactor.
+```
+Civil
+    import-template.xlsx
 
----
+User
+    import-template.xlsx
 
-# Objective
+RW
+    import-template.xlsx
 
-Seluruh CRUD untuk:
+RT
+    import-template.xlsx
 
-* User
-* RW
-* RT
+Quick Count
+    import-template.xlsx
+```
 
-**WAJIB mengikuti arsitektur, struktur folder, flow, naming convention, lifecycle, dan pola implementasi yang sama seperti module Civil.**
-
-Gunakan module **Civil** sebagai acuan utama.
-
-Jangan membuat pendekatan baru.
-
-Jangan membuat implementasi khusus.
-
-Jangan membuat struktur folder yang berbeda.
-
-Jika engine belum mendukung kebutuhan User, RW, atau RT, maka lakukan improvement pada CRUD Engine agar mampu menangani kebutuhan tersebut secara generik.
-
-**Prioritas utama adalah memperluas kemampuan CRUD Engine, bukan membuat exception pada module tertentu.**
+atau mengikuti struktur folder yang sudah digunakan project.
 
 ---
 
-# Audit Existing Engine
+## Requirement
 
-Sebelum melakukan perubahan:
-
-1. Audit implementasi module Civil.
-2. Audit CRUD Engine yang digunakan Civil.
-3. Bandingkan implementasi User, RW, dan RT.
-4. Identifikasi seluruh bagian yang berbeda.
-5. Refactor hingga seluruh pattern sama dengan Civil.
-
-Jika terdapat perbedaan implementasi, gunakan pendekatan Civil sebagai standar.
+- Setiap module memiliki template Import sendiri.
+- Download template harus mengambil template berdasarkan module yang sedang dibuka.
+- Jangan lagi menggunakan template Civil secara global.
+- Gunakan Import Engine yang sudah ada, cukup refactor agar template bersifat per-module.
+- Hindari duplicate code, cukup tambahkan mekanisme agar engine dapat menentukan template berdasarkan konfigurasi module.
 
 ---
 
-# Configuration Driven Only
+## Configuration Driven
 
-Seluruh definisi berikut harus berasal dari konfigurasi, sama seperti module Civil:
+Template Import harus berasal dari konfigurasi module.
 
-* Table Definition
-* Form Definition
-* Filter Definition
-* Actions
-* Validation
-* Import
-* Export
-* Detail View
-* Bulk Actions
-* Toolbar
-* Permission
-* UI Behaviour
+Contoh:
 
-Tidak boleh ada HTML, Blade, Livewire, atau logic CRUD yang ditulis secara hardcode apabila Civil sudah menyediakannya melalui konfigurasi.
+- Module menentukan lokasi template melalui Config Class.
+- Import Engine membaca konfigurasi tersebut.
+- Import Engine mengirimkan template yang sesuai.
+
+Dengan demikian penambahan module baru tidak memerlukan perubahan pada Import Engine.
 
 ---
 
-# Form
-
-Pastikan Form User, RW, dan RT menggunakan mekanisme yang sama seperti Civil.
-
-Jika membutuhkan field baru seperti:
-
-* Password
-* Assign Role
-* Multi Select
-* Location Scope
-* Relation Selector
-
-buat reusable field/component baru pada CRUD Engine.
-
-Jangan membuat implementasi yang hanya digunakan oleh User.
-
----
-
-# Table
-
-Seluruh table harus menggunakan Data Grid Engine yang sama dengan Civil.
-
-Seluruh fitur berikut harus tetap bekerja:
-
-* Sorting
-* Searching
-* Pagination
-* Bulk Action
-* Selection
-* Formatter
-* Badge
-* Action Column
-* Responsive Behaviour
-
----
-
-# Filter
-
-Filter harus menggunakan Filter Engine yang sama dengan Civil.
-
-Jika dibutuhkan filter baru:
-
-* Relation Filter
-* Multi Select Filter
-
-tambahkan ke CRUD Engine.
-
-Jangan membuat query khusus di halaman User, RW, atau RT.
-
----
-
-# Import & Export
-
-Apabila module mendukung import/export, implementasinya harus menggunakan mekanisme yang sama dengan Civil.
-
-Tidak boleh membuat controller, service, atau flow berbeda.
-
----
-
-# Action
-
-Gunakan Action Engine yang sama dengan Civil.
-
-Semua action harus berasal dari konfigurasi.
-
-Jika diperlukan action baru, tambahkan ke engine agar dapat digunakan oleh module lain.
-
----
-
-# Authorization
-
-Authorization tetap menggunakan sistem Role & Permission yang telah dibuat.
-
-Authorization tidak boleh di-hardcode pada halaman tertentu.
-
----
-
-# Reusable First
-
-Jika menemukan kebutuhan baru selama refactor:
-
-❌ Jangan membuat solusi khusus.
-
-✅ Tambahkan kemampuan baru pada CRUD Engine.
-
-Targetnya adalah agar module lain di masa depan dapat menggunakan kemampuan tersebut tanpa perubahan tambahan.
-
----
-
-# Code Quality
-
-Seluruh implementasi wajib mengikuti:
-
-* Laravel 12 Best Practice
-* Clean Architecture yang digunakan project
-* SOLID
-* DRY
-* KISS
-* PSR-12
-
-Hindari:
-
-* duplicate code
-* hardcoded UI
-* hardcoded query
-* hardcoded validation
-* hardcoded action
-
----
-
-# Backward Compatibility
-
-Refactor tidak boleh merusak:
-
-* Civil
-* Import
-* Export
-* Filter
-* Data Grid
-* Reusable Components
-
-Semua module lama harus tetap berjalan seperti sebelumnya.
-
----
-
-# Final Validation
-
-Sebelum menyelesaikan pekerjaan, lakukan review menyeluruh.
+## Final Validation
 
 Pastikan:
 
-* User mengikuti pola implementasi Civil.
-* RW mengikuti pola implementasi Civil.
-* RT mengikuti pola implementasi Civil.
-* Struktur folder konsisten dengan Civil.
-* Service, Config, Resource, UI, Form, Table, Filter, Action, dan Lifecycle konsisten dengan Civil.
-* Tidak ada implementasi hardcode yang tersisa.
-* Tidak ada duplicate code.
-* Seluruh fitur CRUD berjalan normal.
-
-**Module Civil adalah referensi utama. Apabila terdapat perbedaan implementasi, ikuti pendekatan yang digunakan oleh Civil, bukan membuat pola baru.**
+- Civil menggunakan template Civil.
+- User menggunakan template User.
+- RW menggunakan template RW.
+- RT menggunakan template RT.
+- Quick Count menggunakan template Quick Count.
+- Import Engine tetap reusable.
+- Tidak ada hardcode path template.
+- Tidak ada duplicate code.

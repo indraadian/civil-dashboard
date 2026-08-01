@@ -25,29 +25,38 @@ class UpdateCivilRequest extends FormRequest
         $civilParam = $this->route('civil');
         $civilId = is_object($civilParam) ? $civilParam->id : $civilParam;
 
-        if ($user && ($user->isAdmin() || $user->isRw() || $user->isRt())) {
-            return [
-                'kk' => ['nullable', 'string', 'max:16'],
-                'nik' => ['required', 'numeric', 'digits:16', 'unique:civils,nik,' . $civilId],
-                'name' => ['required', 'string', 'max:255'],
-                'place_of_birth' => ['nullable', 'string', 'max:255'],
-                'date_of_birth' => ['required', 'date'],
-                'gender' => ['required', 'in:L,P'],
-                'rt' => ['required', 'string', 'max:5'],
-                'rw' => ['required', 'string', 'max:5'],
-                'hamlet' => ['nullable', 'string', 'max:255'],
-                'address' => ['required', 'string'],
-                'location_type' => ['nullable', 'in:village,housing'],
-                'status' => ['nullable', 'in:Militan,Ngambang,Lawan'],
-            ];
-        }
-
-        return [
+        $rules = [
+            'kk' => ['nullable', 'string', 'max:16'],
             'place_of_birth' => ['nullable', 'string', 'max:255'],
             'hamlet' => ['nullable', 'string', 'max:255'],
             'location_type' => ['nullable', 'in:village,housing'],
             'status' => ['nullable', 'in:Militan,Ngambang,Lawan'],
         ];
+
+        // Only enforce required validations if the input field is present in the request
+        if ($this->has('nik')) {
+            $rules['nik'] = ['required', 'numeric', 'digits:16', 'unique:civils,nik,' . $civilId];
+        }
+        if ($this->has('name')) {
+            $rules['name'] = ['required', 'string', 'max:255'];
+        }
+        if ($this->has('date_of_birth')) {
+            $rules['date_of_birth'] = ['required', 'date'];
+        }
+        if ($this->has('gender')) {
+            $rules['gender'] = ['required', 'in:L,P'];
+        }
+        if ($this->has('rt')) {
+            $rules['rt'] = ['required', 'string', 'max:5'];
+        }
+        if ($this->has('rw')) {
+            $rules['rw'] = ['required', 'string', 'max:5'];
+        }
+        if ($this->has('address')) {
+            $rules['address'] = ['required', 'string'];
+        }
+
+        return $rules;
     }
 
     /**

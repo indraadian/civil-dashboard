@@ -44,6 +44,11 @@ class User extends Authenticatable
         return $this->hasMany(UserLocationScope::class, 'user_id');
     }
 
+    public function quickCounts()
+    {
+        return $this->hasMany(QuickCount::class, 'created_by');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

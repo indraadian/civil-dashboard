@@ -20,7 +20,9 @@ class UserDataTable implements DataTableDefinition
 {
     public function query(): Builder
     {
-        return User::query()->with(['locationScopes.rw', 'locationScopes.rt']);
+        return User::query()
+            ->where('role', '!=', 'super_admin')
+            ->with(['locationScopes.rw', 'locationScopes.rt']);
     }
 
     public function columns(): array
@@ -130,6 +132,22 @@ class UserDataTable implements DataTableDefinition
     public function toolbarActions(): array
     {
         return [
+            ToolbarAction::make('export')
+                ->label('Ekspor')
+                ->icon('download')
+                ->emitEvent('open-export-modal')
+                ->variant('secondary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
+
+            ToolbarAction::make('import')
+                ->label('Impor')
+                ->icon('upload')
+                ->emitEvent('open-import-modal')
+                ->variant('secondary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
+
             ToolbarAction::make('create')
                 ->label('Tambah User')
                 ->icon('plus')

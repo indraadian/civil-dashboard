@@ -36,6 +36,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ── Super Admin Wildcard Access ──────────────────────────────────────────
+        Gate::before(function ($user, $ability) {
+            if ($user->isSuperAdmin()) {
+                return true;
+            }
+        });
+
         // ── Policy Registration ────────────────────────────────────────────────
         Gate::policy(CivilImport::class, CivilImportPolicy::class);
         Gate::policy(CivilExport::class, CivilExportPolicy::class);

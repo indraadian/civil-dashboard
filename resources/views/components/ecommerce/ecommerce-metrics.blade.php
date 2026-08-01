@@ -24,7 +24,7 @@
         <div class="flex items-end justify-between mt-5">
             <div>
                 <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                    {{ number_format($total) }}
+                    <span x-text="typeof stats !== 'undefined' ? stats.totalWarga : '{{ number_format($total) }}'">{{ number_format($total) }}</span>
                 </h4>
             </div>
         </div>
@@ -52,7 +52,7 @@
         <div class="flex items-end justify-between mt-5">
             <div>
                 <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                    {{ number_format($militan) }}
+                    <span x-text="typeof stats !== 'undefined' ? stats.Militan : '{{ number_format($militan) }}'">{{ number_format($militan) }}</span>
                 </h4>
             </div>
         </div>
@@ -80,7 +80,7 @@
         <div class="flex items-end justify-between mt-5">
             <div>
                 <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                    {{ number_format($ngambang) }}
+                    <span x-text="typeof stats !== 'undefined' ? stats.Ngambang : '{{ number_format($ngambang) }}'">{{ number_format($ngambang) }}</span>
                 </h4>
             </div>
         </div>
@@ -108,9 +108,8 @@
         <div class="flex items-end justify-between mt-5">
             <div>
                 <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                    {{ number_format($lawan) }}
+                    <span x-text="typeof stats !== 'undefined' ? stats.Lawan : '{{ number_format($lawan) }}'">{{ number_format($lawan) }}</span>
                 </h4>
             </div>
         </div>
     </div>
-</div>

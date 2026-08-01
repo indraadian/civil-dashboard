@@ -15,9 +15,14 @@ class CivilExportService
      *
      * @return CivilExport Record export yang baru dibuat
      */
-    public function initiate(int $userId, array $filters = [], string $format = 'xlsx'): CivilExport
-    {
-        $filename = 'civils_' . now()->format('Ymd_His') . '.' . $format;
+    public function initiate(
+        int $userId,
+        array $filters = [],
+        string $format = 'xlsx',
+        ?string $exporterClass = null,
+        string $prefix = 'civils'
+    ): CivilExport {
+        $filename = $prefix . '_' . now()->format('Ymd_His') . '.' . $format;
 
         $export = CivilExport::create([
             'filename'   => $filename,
@@ -25,14 +30,14 @@ class CivilExportService
             'created_by' => $userId,
         ]);
 
-        Log::info('CivilExport dimulai.', [
+        Log::info('Export dimulai.', [
             'export_id' => $export->id,
             'filename'  => $filename,
             'filters'   => $filters,
             'user_id'   => $userId,
         ]);
 
-        GenerateCivilExportJob::dispatch($export, $filters, $format);
+        GenerateCivilExportJob::dispatch($export, $filters, $format, $exporterClass);
 
         return $export;
     }

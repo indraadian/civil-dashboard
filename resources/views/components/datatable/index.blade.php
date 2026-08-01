@@ -289,6 +289,36 @@
                                         })()"></span>
                                 </template>
                             </td>
+                        @elseif ($column['type'] === 'image')
+                            <td x-show="isColumnVisible('{{ $column['field'] }}')" class="px-4 sm:px-6 py-3.5">
+                                <template x-if="row['{{ $column['field'] }}__url'] || row['{{ $column['field'] }}']">
+                                    <div class="flex items-center gap-2" x-data="{ modalOpen: false }">
+                                        <img :src="row['{{ $column['field'] }}__url'] || row['{{ $column['field'] }}']"
+                                             alt="Preview"
+                                             @click="modalOpen = true"
+                                             class="h-10 w-10 object-cover rounded-lg border border-gray-200 cursor-pointer shadow-xs hover:opacity-80 transition dark:border-gray-700" />
+
+                                        {{-- Image Preview Lightbox Modal --}}
+                                        <div x-show="modalOpen" x-cloak
+                                             @click.away="modalOpen = false"
+                                             @keydown.escape.window="modalOpen = false"
+                                             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs">
+                                            <div class="relative max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white p-2 dark:bg-gray-900">
+                                                <button @click="modalOpen = false" class="absolute top-4 right-4 z-10 rounded-full bg-gray-800/60 p-2 text-white hover:bg-gray-800">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                                <img :src="row['{{ $column['field'] }}__url'] || row['{{ $column['field'] }}']"
+                                                     class="max-h-[80vh] w-auto max-w-full rounded-xl object-contain mx-auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="!row['{{ $column['field'] }}__url'] && !row['{{ $column['field'] }}']">
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">Tanpa Foto</span>
+                                </template>
+                            </td>
                         @elseif ($column['type'] === 'action')
                             <td class="px-4 sm:px-6 py-3.5">
                                 <div class="flex items-center gap-3">

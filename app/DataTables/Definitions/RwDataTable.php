@@ -99,11 +99,29 @@ class RwDataTable implements DataTableDefinition
     public function toolbarActions(): array
     {
         return [
+            ToolbarAction::make('export')
+                ->label('Ekspor')
+                ->icon('download')
+                ->url('/settings/rws/export')
+                ->variant('secondary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
+
+            ToolbarAction::make('import')
+                ->label('Impor')
+                ->icon('upload')
+                ->emitEvent('open-import-modal')
+                ->variant('primary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
+
             ToolbarAction::make('create')
                 ->label('Tambah RW')
                 ->icon('plus')
                 ->emitEvent('open-rw-modal')
-                ->variant('primary'),
+                ->variant('primary')
+                ->requiresRole('admin')
+                ->requiresRole('super_admin'),
         ];
     }
 

@@ -40,18 +40,22 @@ class ProcessCivilImportJob implements ShouldQueue
 
     public function __construct(
         private readonly CivilImport $import,
+        private readonly ?string $actionClass = null,
     ) {}
 
     /**
      * Execute the job.
      */
-    public function handle(ProcessCivilRowAction $action): void
+    public function handle(ProcessCivilRowAction $defaultAction): void
     {
         $this->import->markAsProcessing();
 
+        $action = $this->actionClass ? app($this->actionClass) : $defaultAction;
+
         Log::info('ProcessCivilImportJob: mulai proses.', [
-            'import_id' => $this->import->id,
-            'path'      => $this->import->stored_path,
+            'import_id'   => $this->import->id,
+            'path'        => $this->import->stored_path,
+            'actionClass' => get_class($action),
         ]);
 
         try {
@@ -65,7 +69,7 @@ class ProcessCivilImportJob implements ShouldQueue
     /**
      * Proses file Excel/CSV secara chunk menggunakan maatwebsite/excel.
      */
-    private function processFile(ProcessCivilRowAction $action): void
+    private function processFile(mixed $action): void
     {
         $path = Storage::disk('local')->path($this->import->stored_path);
 

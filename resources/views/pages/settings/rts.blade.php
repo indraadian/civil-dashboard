@@ -133,4 +133,24 @@
             }).then(() => window.location.reload());
         }
     </script>
+    {{-- Export Modal --}}
+    <x-ui.export-modal
+        :action="route('settings.rts.export')"
+        title="Ekspor Master RT"
+        description="Pilih format file untuk mengunduh data Master RT."
+    />
+
+    {{-- Import Modal --}}
+    <x-ui.import-modal
+        module="rt"
+        :action="route('settings.rts.import')"
+        title="Impor Master RT"
+        description="Unggah file CSV / Excel untuk mengimpor atau memperbarui data Master RT."
+        :validationRules="[
+            '<strong>Kode RW</strong>: Wajib, format 3 digit (contoh: `001`).',
+            '<strong>Kode RT</strong>: Wajib, format 3 digit (contoh: `001`, `002`).',
+            '<strong>Nama RT</strong>: Nama lengkap RT (opsional, contoh: `RT 001 Mawar`).',
+            '<strong>Status</strong>: `Aktif` atau `Non-Aktif` (default: Aktif).',
+        ]"
+    />
 @endsection

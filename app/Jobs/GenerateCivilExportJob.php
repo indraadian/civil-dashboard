@@ -43,6 +43,7 @@ class GenerateCivilExportJob implements ShouldQueue
         private readonly CivilExport $export,
         private readonly array $filters = [],
         private readonly string $format = 'xlsx',
+        private readonly ?string $exporterClass = null,
     ) {
     }
 
@@ -55,6 +56,7 @@ class GenerateCivilExportJob implements ShouldQueue
             'export_id' => $this->export->id,
             'filters' => $this->filters,
             'format' => $this->format,
+            'exporter' => $this->exporterClass ?? \App\Actions\Export\CivilExporter::class,
         ]);
 
         try {
@@ -78,23 +80,27 @@ class GenerateCivilExportJob implements ShouldQueue
      */
     private function generateFile(): void
     {
-        $totalRows = $this->buildQuery()->count();
+        /** @var \App\Actions\Export\ExporterInterface $exporter */
+        $exporterClass = $this->exporterClass ?? \App\Actions\Export\CivilExporter::class;
+        $exporter = app($exporterClass);
+
+        $query = $exporter->buildQuery($this->filters);
+        $totalRows = $query->count();
         $this->export->markAsProcessing($totalRows);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Tulis heading row
-        $sheet->fromArray($this->getHeadings(), null, 'A1');
+        $sheet->fromArray($exporter->getHeadings(), null, 'A1');
 
         // Stream data dari DB menggunakan cursor (LazyCollection)
         $rowIndex = 2;
         $processedRows = 0;
 
-        $this->buildQuery()
-            ->cursor()
-            ->each(function (Civil $civil) use ($sheet, &$rowIndex, &$processedRows): void {
-                $sheet->fromArray($this->mapRow($civil), null, 'A' . $rowIndex);
+        $query->cursor()
+            ->each(function (\Illuminate\Database\Eloquent\Model $model) use ($exporter, $sheet, &$rowIndex, &$processedRows): void {
+                $sheet->fromArray($exporter->mapRow($model), null, 'A' . $rowIndex);
                 $rowIndex++;
                 $processedRows++;
 

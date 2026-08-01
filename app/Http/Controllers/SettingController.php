@@ -193,6 +193,40 @@ class SettingController extends Controller
     }
 
     /**
+     * Export User data.
+     */
+    public function exportUsers(Request $request, \App\Services\UserExportService $exportService): RedirectResponse
+    {
+        $export = $exportService->initiate(
+            userId: $request->user()->id,
+            filters: $request->all(),
+            format: $request->input('format', 'xlsx')
+        );
+
+        return back()->with(
+            'info',
+            "File sedang dibuat di background. ID Export: #{$export->id}. Anda akan diberitahu ketika file siap diunduh."
+        );
+    }
+
+    /**
+     * Import User data from CSV/Excel file.
+     */
+    public function importUsers(Request $request, \App\Services\UserImportService $importService): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:5120'],
+        ]);
+
+        $import = $importService->initiate($request);
+
+        return back()->with(
+            'info',
+            "File sedang diproses di background. ID Import: #{$import->id}. Anda akan diberitahu ketika selesai."
+        );
+    }
+
+    /**
      * Simpan/sinkronisasi hak akses wilayah user.
      */
     private function syncUserLocationScopes(User $user, array $scopes): void
