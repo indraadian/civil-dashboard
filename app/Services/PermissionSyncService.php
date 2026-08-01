@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionSyncService
 {
@@ -97,5 +98,64 @@ class PermissionSyncService
         }
 
         return $count;
+    }
+
+    /**
+     * Synchronize permissions AND default role assignments.
+     *
+     * @return array{permissions: int, roles: int}
+     */
+    public function syncRolesAndPermissions(): array
+    {
+        // 1. Sync permissions first
+        $permCount = $this->sync();
+
+        // 2. Ensure default roles exist
+        $defaultRoles = ['Super Admin', 'Admin', 'User'];
+        $roleCount = 0;
+        foreach ($defaultRoles as $roleName) {
+            Role::firstOrCreate(
+                ['name' => $roleName, 'guard_name' => 'web']
+            );
+            $roleCount++;
+        }
+
+        // 3. Sync permissions to default roles
+        $superAdminRole = Role::where('name', 'Super Admin')->first();
+        $adminRole = Role::where('name', 'Admin')->first();
+        $userRole = Role::where('name', 'User')->first();
+
+        // Super Admin gets all permissions
+        if ($superAdminRole) {
+            $superAdminRole->syncPermissions(Permission::all());
+        }
+
+        // Admin gets all permissions except migration.run
+        if ($adminRole) {
+            $adminPermissions = Permission::where('name', '!=', 'migration.run')->get();
+            $adminRole->syncPermissions($adminPermissions);
+        }
+
+        // User gets basic operational permissions
+        if ($userRole) {
+            $userPermissionNames = [
+                'civil.view',
+                'civil.update',
+                'quick-count.view',
+                'quick-count.create',
+                'quick-count.update',
+                'dashboard.view',
+            ];
+            $userPermissions = Permission::whereIn('name', $userPermissionNames)->get();
+            $userRole->syncPermissions($userPermissions);
+        }
+
+        // 4. Clear Spatie permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return [
+            'permissions' => $permCount,
+            'roles' => $roleCount,
+        ];
     }
 }

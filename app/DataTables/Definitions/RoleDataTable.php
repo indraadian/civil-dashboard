@@ -90,6 +90,14 @@ class RoleDataTable implements DataTableDefinition
                 ->emitEvent('open-role-modal')
                 ->variant('primary')
                 ->requiresPermission('role.create'),
+
+            ToolbarAction::make('sync-roles-permissions')
+                ->label('Sync Role & Permission')
+                ->icon('upload')
+                ->url('/settings/sync-roles-permissions')
+                ->method('POST')
+                ->variant('secondary')
+                ->requiresPermission('permission.sync'),
         ];
     }
 

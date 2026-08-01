@@ -18,7 +18,7 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Migrasi Database</h3>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Gunakan tombol di bawah untuk menjalankan migrasi database secara manual dari panel Super Admin.</p>
@@ -41,6 +41,19 @@
                     <button type="submit"
                         class="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 transition">
                         Patch Master RW & RT
+                    </button>
+                </form>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Sync Role & Permission</h3>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Sinkronisasi otomatis role dasar (Super Admin, Admin, User) dan pemetaan hak akses permission modul aplikasi.</p>
+
+                <form action="{{ route('settings.sync-roles-permissions') }}" method="POST" class="mt-6">
+                    @csrf
+                    <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition">
+                        Sync Role & Permission
                     </button>
                 </form>
             </div>
