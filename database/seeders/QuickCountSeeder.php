@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Candidate;
 use App\Models\QuickCount;
+use App\Models\QuickCountDetail;
 use App\Models\Tps;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -12,6 +14,7 @@ class QuickCountSeeder extends Seeder
     public function run(): void
     {
         $admin = User::whereIn('role', ['admin', 'super_admin'])->first() ?? User::first();
+        $candidates = Candidate::where('is_active', true)->get();
 
         // 1. Seed TPS Master Data
         $tpsDataList = [
@@ -32,39 +35,60 @@ class QuickCountSeeder extends Seeder
         // 2. Seed Sample Quick Count Entries
         $allTps = Tps::all();
 
-        if ($allTps->isNotEmpty() && $admin) {
-            // Seed TPS 01 results
-            QuickCount::updateOrCreate(
-                ['tps_id' => $allTps[0]->id],
+        if ($allTps->isNotEmpty() && $admin && $candidates->isNotEmpty()) {
+            $sampleEntries = [
                 [
-                    'vote_count' => 240,
+                    'tps_id' => $allTps[0]->id,
+                    'officer_name' => 'Budi Santoso',
+                    'officer_phone' => '081234567890',
+                    'votes' => [120, 95, 75],
+                    'invalid_votes' => 10,
+                    'total_voters' => 300,
+                ],
+                [
+                    'tps_id' => $allTps[1]->id,
+                    'officer_name' => 'Siti Rahmawati',
+                    'officer_phone' => '082345678901',
+                    'votes' => [110, 85, 60],
+                    'invalid_votes' => 5,
+                    'total_voters' => 260,
+                ],
+                [
+                    'tps_id' => $allTps[2]->id,
+                    'officer_name' => 'Ahmad Fauzi',
+                    'officer_phone' => '083456789012',
+                    'votes' => [140, 105, 95],
+                    'invalid_votes' => 10,
                     'total_voters' => 350,
-                    'notes' => 'Input sesuai C1 Plano TPS 01',
-                    'created_by' => $admin->id,
-                ]
-            );
+                ],
+            ];
 
-            // Seed TPS 02 results
-            QuickCount::updateOrCreate(
-                ['tps_id' => $allTps[1]->id],
-                [
-                    'vote_count' => 180,
-                    'total_voters' => 320,
-                    'notes' => 'Proses verifikasi saksi lancar',
-                    'created_by' => $admin->id,
-                ]
-            );
+            foreach ($sampleEntries as $entry) {
+                $qc = QuickCount::updateOrCreate(
+                    ['tps_id' => $entry['tps_id']],
+                    [
+                        'officer_name' => $entry['officer_name'],
+                        'officer_phone' => $entry['officer_phone'],
+                        'input_at' => now(),
+                        'invalid_votes' => $entry['invalid_votes'],
+                        'total_voters' => $entry['total_voters'],
+                        'created_by' => $admin->id,
+                    ]
+                );
 
-            // Seed TPS 03 results
-            QuickCount::updateOrCreate(
-                ['tps_id' => $allTps[2]->id],
-                [
-                    'vote_count' => 310,
-                    'total_voters' => 400,
-                    'notes' => 'C1 Plano terverifikasi sah',
-                    'created_by' => $admin->id,
-                ]
-            );
+                foreach ($candidates as $index => $candidate) {
+                    $voteCount = $entry['votes'][$index] ?? 50;
+                    QuickCountDetail::updateOrCreate(
+                        [
+                            'quick_count_id' => $qc->id,
+                            'candidate_id' => $candidate->id,
+                        ],
+                        [
+                            'vote_count' => $voteCount,
+                        ]
+                    );
+                }
+            }
         }
     }
 }

@@ -53,6 +53,15 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(ExportCompleted::class, HandleExportCompleted::class);
         Event::listen(ExportFailed::class, HandleExportFailed::class);
 
+        // ── App Status Lock Composer ───────────────────────────────────────────
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            $isAppActive = (bool) config('app.app_status.active', true);
+            $user = auth()->user();
+            $isLocked = !$isAppActive && $user && !$user->isSuperAdmin();
+
+            $view->with('isAppLocked', $isLocked);
+        });
+
         // ── Auto Migration (existing behavior) ────────────────────────────────
         if ($this->app->runningInConsole() || $this->app->environment('testing')) {
             return;

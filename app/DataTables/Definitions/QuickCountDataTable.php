@@ -2,7 +2,6 @@
 
 namespace App\DataTables\Definitions;
 
-use App\DataTables\Actions\BulkAction;
 use App\DataTables\Actions\RowAction;
 use App\DataTables\Actions\ToolbarAction;
 use App\DataTables\Columns\ActionColumn;
@@ -14,7 +13,6 @@ use App\DataTables\Filters\SelectFilter;
 use App\DataTables\Filters\TextFilter;
 use App\Models\QuickCount;
 use App\Models\Tps;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class QuickCountDataTable implements DataTableDefinition
@@ -22,42 +20,43 @@ class QuickCountDataTable implements DataTableDefinition
     public function query(): Builder
     {
         return QuickCount::query()
-            ->with(['tps', 'creator', 'updater'])
-            ->forUser(auth()->user());
+            ->with(['tps', 'details.candidate'])
+            ->forCurrentUser();
     }
 
     public function columns(): array
     {
         return [
             TextColumn::make('tps.name')
-                ->label('TPS')
+                ->label('TPS'),
+
+            TextColumn::make('officer_name')
+                ->label('Nama Petugas')
                 ->sortable(),
 
-            TextColumn::make('vote_count')
-                ->label('Perolehan Suara')
+            TextColumn::make('officer_phone')
+                ->label('No. HP')
                 ->sortable(),
+
+            DateColumn::make('input_at')
+                ->label('Waktu Input')
+                ->format('d M Y H:i')
+                ->sortable(),
+
+            TextColumn::make('valid_votes')
+                ->label('Suara Sah')
+                ->computed(fn($row) => number_format($row->details->sum('vote_count'), 0, ',', '.')),
+
+            TextColumn::make('invalid_votes')
+                ->label('Tidak Sah')
+                ->computed(fn($row) => number_format($row->invalid_votes, 0, ',', '.')),
 
             TextColumn::make('total_voters')
-                ->label('Total Pemilih TPS')
-                ->sortable(),
+                ->label('Total Pengguna')
+                ->computed(fn($row) => number_format($row->total_voters, 0, ',', '.')),
 
-            TextColumn::make('progress')
-                ->label('Persentase Suara')
-                ->computed(function ($row) {
-                    $votes = $row->vote_count ?? 0;
-                    $total = $row->total_voters ?? 0;
-                    $percent = $total > 0 ? round(($votes / $total) * 100, 1) : 0;
-
-                    return "{$percent}% ({$votes} dari {$total})";
-                }),
-
-            ImageColumn::make('c1_photo')
-                ->label('Foto C1')
-                ->computed(fn ($row) => $row->c1_photo_url),
-
-            TextColumn::make('creator.name')
-                ->label('Petugas Input')
-                ->computed(fn ($row) => $row->creator?->name ?? '-'),
+            ImageColumn::make('c1_photo_url')
+                ->label('Foto C1'),
 
             DateColumn::make('updated_at')
                 ->label('Diubah Pada')
@@ -70,19 +69,19 @@ class QuickCountDataTable implements DataTableDefinition
 
     public function filters(): array
     {
-        $tpsOptions = Tps::pluck('name', 'id')->toArray();
-        $userOptions = User::pluck('name', 'id')->toArray();
-
         return [
-            SelectFilter::make('tps_id')->label('TPS')->options($tpsOptions),
-            SelectFilter::make('created_by')->label('Petugas Input')->options($userOptions),
-            TextFilter::make('notes')->label('Catatan'),
+            SelectFilter::make('tps_id')
+                ->label('TPS')
+                ->options(Tps::orderBy('name')->pluck('name', 'id')->toArray()),
+
+            TextFilter::make('officer_name')
+                ->label('Nama Petugas'),
         ];
     }
 
     public function searchableColumns(): array
     {
-        return ['notes'];
+        return ['officer_name', 'officer_phone', 'tps.name'];
     }
 
     public function actions(): array
@@ -105,13 +104,7 @@ class QuickCountDataTable implements DataTableDefinition
 
     public function bulkActions(): array
     {
-        return [
-            BulkAction::make('delete')
-                ->label('Hapus Terpilih')
-                ->endpoint('/quick-counts/delete-bulk')
-                ->confirmMessage('Yakin ingin menghapus data Quick Count terpilih?')
-                ->requiresPermission('quick-count.delete'),
-        ];
+        return [];
     }
 
     public function toolbarActions(): array
@@ -120,7 +113,7 @@ class QuickCountDataTable implements DataTableDefinition
             ToolbarAction::make('export')
                 ->label('Ekspor')
                 ->icon('download')
-                ->url('/quick-counts/export')
+                ->emitEvent('open-export-modal')
                 ->variant('secondary')
                 ->requiresPermission('quick-count.export'),
 
@@ -128,7 +121,7 @@ class QuickCountDataTable implements DataTableDefinition
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
-                ->variant('primary')
+                ->variant('secondary')
                 ->requiresPermission('quick-count.import'),
 
             ToolbarAction::make('create')
@@ -147,7 +140,7 @@ class QuickCountDataTable implements DataTableDefinition
 
     public function defaultPerPage(): int
     {
-        return 10;
+        return 25;
     }
 
     public function defaultSortField(): string

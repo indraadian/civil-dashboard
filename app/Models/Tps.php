@@ -20,6 +20,11 @@ class Tps extends Model
         'total_voters',
     ];
 
+    public function quickCount(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(QuickCount::class, 'tps_id');
+    }
+
     public function quickCounts(): HasMany
     {
         return $this->hasMany(QuickCount::class, 'tps_id');

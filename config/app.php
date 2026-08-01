@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Global Application Status
+    |--------------------------------------------------------------------------
+    |
+    | When 'active' is false, the application is locked for non-administrator users.
+    |
+    */
+
+    'app_status' => [
+        'active' => (bool) env('APP_ACTIVE', true),
+    ],
+
 ];

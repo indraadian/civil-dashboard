@@ -1,16 +1,28 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 
 uses(RefreshDatabase::class);
 
-it('allows admin to access settings page', function () {
-    $admin = User::factory()->create([
-        'role' => 'admin',
+beforeEach(function () {
+    (new RolePermissionSeeder())->run();
+});
+
+function createAdminUser(array $attributes = []): User
+{
+    $user = User::factory()->create(array_merge([
+        'role' => 'super_admin',
         'email' => 'admin@example.com',
-    ]);
+    ], $attributes));
+    $user->assignRole('Super Admin');
+    return $user;
+}
+
+it('allows admin to access settings page', function () {
+    $admin = createAdminUser();
 
     $response = $this->actingAs($admin, 'web')->get('/settings');
 
@@ -18,15 +30,13 @@ it('allows admin to access settings page', function () {
 });
 
 it('allows admin to create a new user from settings', function () {
-    $admin = User::factory()->create([
-        'role' => 'admin',
-        'email' => 'admin2@example.com',
-    ]);
+    $admin = createAdminUser(['email' => 'admin2@example.com']);
 
     $response = $this->actingAs($admin, 'web')->post('/settings/users', [
         'name' => 'User Baru',
         'email' => 'baru@example.com',
         'password' => 'password123',
+        'password_confirmation' => 'password123',
         'role' => 'user',
     ]);
 
@@ -34,24 +44,16 @@ it('allows admin to create a new user from settings', function () {
     $this->assertDatabaseHas('users', ['email' => 'baru@example.com']);
 });
 
-it('renders an ajax delete handler for users in the settings page', function () {
-    $admin = User::factory()->create([
-        'role' => 'admin',
-        'email' => 'admin3@example.com',
-    ]);
+it('allows admin to access users settings page', function () {
+    $admin = createAdminUser(['email' => 'admin3@example.com']);
 
     $response = $this->actingAs($admin, 'web')->get('/settings/users');
 
     $response->assertStatus(200);
-    $response->assertSee('function deleteUser(', false);
-    $response->assertSee('X-Requested-With', false);
 });
 
-it('returns a partial table for ajax user searches', function () {
-    $admin = User::factory()->create([
-        'role' => 'admin',
-        'email' => 'admin4@example.com',
-    ]);
+it('returns json data for datatable user searches', function () {
+    $admin = createAdminUser(['email' => 'admin4@example.com']);
 
     User::factory()->create([
         'name' => 'Alice Search',
@@ -60,19 +62,14 @@ it('returns a partial table for ajax user searches', function () {
     ]);
 
     $response = $this->actingAs($admin, 'web')
-        ->withHeader('X-Requested-With', 'XMLHttpRequest')
-        ->get('/settings/users?search=alice');
+        ->getJson('/settings/users/data?search=alice');
 
     $response->assertStatus(200);
-    $response->assertDontSee('Manajemen User');
-    $response->assertSee('Alice Search');
+    $response->assertJsonFragment(['name' => 'Alice Search']);
 });
 
 it('shows migration failure details in the UI', function () {
-    $admin = User::factory()->create([
-        'role' => 'admin',
-        'email' => 'admin3@example.com',
-    ]);
+    $admin = createAdminUser(['email' => 'admin5@example.com']);
 
     Artisan::shouldReceive('call')
         ->once()

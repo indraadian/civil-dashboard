@@ -69,4 +69,14 @@ return [
             '<strong>Role</strong>: `admin` atau `user`.',
         ],
     ],
+    'candidate' => [
+        'title' => 'Template Import Master Candidate',
+        'file' => 'template_candidate.xlsx',
+        'filename' => 'template_import_candidate.xlsx',
+        'validationRules' => [
+            '<strong>Nomor Urut / No Urut</strong>: Wajib, angka nomor urut calon (contoh: `1`).',
+            '<strong>Nama Pasangan Calon / Nama Calon</strong>: Wajib, nama lengkap pasangan calon.',
+            '<strong>Status Aktif</strong>: `1` / `Aktif` / `Ya` atau `0` / `Nonaktif`.',
+        ],
+    ],
 ];

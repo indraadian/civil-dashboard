@@ -16,6 +16,11 @@ class ImageColumn extends Column
         return $this;
     }
 
+    public function defaultImage(string $defaultImage): static
+    {
+        return $this->placeholder($defaultImage);
+    }
+
     public function size(string $width, string $height): static
     {
         $this->width = $width;

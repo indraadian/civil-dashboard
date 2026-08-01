@@ -15,28 +15,31 @@ class StoreQuickCountRequest extends FormRequest
     {
         return [
             'tps_id' => ['required', 'exists:tps,id', 'unique:quick_counts,tps_id'],
-            'vote_count' => ['required', 'integer', 'min:0'],
-            'total_voters' => ['required', 'integer', 'min:0', 'gte:vote_count'],
-            'c1_photo' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'officer_name' => ['required', 'string', 'max:255'],
+            'officer_phone' => ['required', 'string', 'max:50'],
+            'c1_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'invalid_votes' => ['required', 'integer', 'min:0'],
+            'total_voters' => ['required', 'integer', 'min:0'],
+            'votes' => ['required', 'array'],
+            'votes.*' => ['required', 'integer', 'min:0'],
         ];
     }
 
-    public function messages(): array
+    public function withValidator($validator): void
     {
-        return [
-            'tps_id.required' => 'TPS wajib dipilih.',
-            'tps_id.exists' => 'TPS tidak valid.',
-            'tps_id.unique' => 'Data Quick Count untuk TPS ini sudah ada.',
-            'vote_count.required' => 'Jumlah suara wajib diisi.',
-            'vote_count.min' => 'Jumlah suara tidak boleh negatif.',
-            'total_voters.required' => 'Total pemilih TPS wajib diisi.',
-            'total_voters.min' => 'Total pemilih TPS tidak boleh negatif.',
-            'total_voters.gte' => 'Total pemilih tidak boleh kurang dari jumlah suara.',
-            'c1_photo.required' => 'Foto C1 wajib diunggah.',
-            'c1_photo.image' => 'File Foto C1 harus berupa gambar.',
-            'c1_photo.mimes' => 'Format gambar yang diperbolehkan: jpeg, jpg, png, webp.',
-            'c1_photo.max' => 'Ukuran foto C1 maksimal 4MB.',
-        ];
+        $validator->after(function ($validator) {
+            $votes = (array) $this->input('votes', []);
+            $validVotesSum = array_sum(array_map('intval', $votes));
+            $invalidVotes = (int) $this->input('invalid_votes', 0);
+            $totalVoters = (int) $this->input('total_voters', 0);
+
+            if (($validVotesSum + $invalidVotes) !== $totalVoters) {
+                $validator->errors()->add(
+                    'total_voters',
+                    "Total perolehan suara calon ({$validVotesSum}) + suara tidak sah ({$invalidVotes}) = " .
+                    ($validVotesSum + $invalidVotes) . " tidak sama dengan Total Pengguna Hak Pilih ({$totalVoters})."
+                );
+            }
+        });
     }
 }
