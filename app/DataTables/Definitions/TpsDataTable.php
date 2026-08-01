@@ -40,7 +40,7 @@ class TpsDataTable implements DataTableDefinition
 
             TextColumn::make('quick_counts_count')
                 ->label('Total Data Count')
-                ->computed(fn ($row) => $row->quick_counts_count ?? 0),
+                ->computed(fn($row) => $row->quick_counts_count ?? 0),
 
             DateColumn::make('updated_at')
                 ->label('Diubah Pada')
@@ -100,7 +100,7 @@ class TpsDataTable implements DataTableDefinition
             ToolbarAction::make('export')
                 ->label('Ekspor')
                 ->icon('download')
-                ->url('/settings/tps/export')
+                ->emitEvent('open-export-modal')
                 ->variant('secondary')
                 ->requiresPermission('tps.export'),
 
@@ -108,7 +108,7 @@ class TpsDataTable implements DataTableDefinition
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
-                ->variant('primary')
+                ->variant('secondary')
                 ->requiresPermission('tps.import'),
 
             ToolbarAction::make('create')

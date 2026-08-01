@@ -363,8 +363,21 @@
     <x-ui.export-modal
         :action="route('settings.users.export')"
         title="Ekspor Data User"
-        description="Pilih format file untuk mengunduh daftar pengguna."
-    />
+        description="Pilih format file dan filter pengguna yang ingin diekspor."
+    >
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Filter Role</label>
+            <select name="role"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                <option value="">Semua Role</option>
+                <option value="super_admin">Super Admin</option>
+                <option value="admin">Admin</option>
+                <option value="rw">RW</option>
+                <option value="rt">RT</option>
+                <option value="user">User / Relawan</option>
+            </select>
+        </div>
+    </x-ui.export-modal>
 
     {{-- Import Modal Component --}}
     <x-ui.import-modal

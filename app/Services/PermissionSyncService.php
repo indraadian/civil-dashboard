@@ -63,6 +63,12 @@ class PermissionSyncService
                 'quick-count.import' => 'Import Quick Count',
                 'quick-count.export' => 'Export Quick Count',
             ],
+            'Candidate' => [
+                'candidate.view'   => 'View Candidate',
+                'candidate.create' => 'Create Candidate',
+                'candidate.update' => 'Update Candidate',
+                'candidate.delete' => 'Delete Candidate',
+            ],
             'Role' => [
                 'role.view'   => 'View Role',
                 'role.create' => 'Create Role',

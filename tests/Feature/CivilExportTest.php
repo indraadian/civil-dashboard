@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     Storage::fake('local');
+    Storage::disk('local')->put('exports/civils.xlsx', 'dummy content');
     Queue::fake();
 });
 
 // ── Export Flow ────────────────────────────────────────────────────────────────
 
 test('admin dapat memulai proses export', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
 
     $response = $this->actingAs($admin)
         ->post(route('civils.export'));
@@ -24,7 +25,7 @@ test('admin dapat memulai proses export', function () {
 });
 
 test('export memastikan job di-dispatch ke queue', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
 
     $this->actingAs($admin)->post(route('civils.export'));
 
@@ -32,7 +33,7 @@ test('export memastikan job di-dispatch ke queue', function () {
 });
 
 test('export membuat record di database dengan status pending', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
 
     $this->actingAs($admin)->post(route('civils.export'));
 
@@ -77,7 +78,7 @@ test('endpoint progress export mengembalikan JSON yang benar', function () {
 // ── Download Endpoint ──────────────────────────────────────────────────────────
 
 test('user bisa download file export miliknya yang sudah selesai', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
 
     Storage::disk('local')->put('exports/2026/07/civils_test.xlsx', 'fake content');
 

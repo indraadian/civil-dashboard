@@ -162,7 +162,7 @@ class CivilDataTable implements DataTableDefinition
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
-                ->variant('primary')
+                ->variant('secondary')
                 ->requiresPermission('civil.import'),
 
             ToolbarAction::make('create')

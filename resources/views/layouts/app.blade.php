@@ -163,6 +163,43 @@
     <x-ui.import-report-modal />
     <x-ui.profile-modal />
 
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Berhasil', message: @json(session('success')), type: 'success' }
+                }));
+            });
+        </script>
+    @endif
+    @if (session('info'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Informasi', message: @json(session('info')), type: 'info' }
+                }));
+            });
+        </script>
+    @endif
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Gagal', message: @json(session('error')), type: 'error' }
+                }));
+            });
+        </script>
+    @endif
+    @if (session('warning'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Peringatan', message: @json(session('warning')), type: 'warning' }
+                }));
+            });
+        </script>
+    @endif
+
 </body>
 
 @stack('scripts')

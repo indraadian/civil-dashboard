@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CivilController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportTemplateController;
@@ -166,6 +167,36 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:permission.sync')->group(function () {
         Route::post('/settings/permissions/sync', [PermissionController::class, 'sync'])->name('settings.permissions.sync');
+    });
+
+    // Master Candidate management
+    Route::middleware('permission:candidate.view')->group(function () {
+        Route::get('/settings/candidates', [CandidateController::class, 'index'])->name('settings.candidates');
+        Route::get('/settings/candidates/data', [CandidateController::class, 'data'])->name('settings.candidates.data');
+    });
+
+    Route::middleware('permission:candidate.create')->group(function () {
+        Route::post('/settings/candidates', [CandidateController::class, 'store'])->name('settings.candidates.store');
+    });
+
+    Route::middleware('permission:candidate.update')->group(function () {
+        Route::get('/settings/candidates/{candidate}/edit', [CandidateController::class, 'edit'])->name('settings.candidates.edit');
+        Route::put('/settings/candidates/{candidate}', [CandidateController::class, 'update'])->name('settings.candidates.update');
+    });
+
+    Route::middleware('permission:candidate.delete')->group(function () {
+        Route::delete('/settings/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('settings.candidates.destroy');
+        Route::post('/settings/candidates/delete-bulk', [CandidateController::class, 'destroyBulk'])->name('settings.candidates.destroyBulk');
+    });
+
+    Route::middleware('permission:candidate.view')->group(function () {
+        Route::match(['get', 'post'], '/settings/candidates/export', [CandidateController::class, 'export'])->name('settings.candidates.export');
+        Route::get('/settings/candidates/exports/{export}', [CandidateController::class, 'exportProgress'])->name('settings.candidates.exportProgress');
+    });
+
+    Route::middleware('permission:candidate.create')->group(function () {
+        Route::post('/settings/candidates/import', [CandidateController::class, 'import'])->name('settings.candidates.import');
+        Route::get('/settings/candidates/imports/{import}', [CandidateController::class, 'importProgress'])->name('settings.candidates.importProgress');
     });
 
     // Master TPS management

@@ -15,7 +15,7 @@ beforeEach(function () {
 // ── Import Flow ────────────────────────────────────────────────────────────────
 
 test('admin dapat mengupload file import', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $file  = UploadedFile::fake()->create('civils.xlsx', 100, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
     $response = $this->actingAs($admin)
@@ -26,7 +26,7 @@ test('admin dapat mengupload file import', function () {
 });
 
 test('import memastikan job di-dispatch ke queue', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $file  = UploadedFile::fake()->create('civils.xlsx', 100, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
     $this->actingAs($admin)
@@ -36,7 +36,7 @@ test('import memastikan job di-dispatch ke queue', function () {
 });
 
 test('import membuat record di database dengan status pending', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $file  = UploadedFile::fake()->create('civils.xlsx', 100, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
     $this->actingAs($admin)
@@ -49,7 +49,7 @@ test('import membuat record di database dengan status pending', function () {
 });
 
 test('import menolak file dengan format tidak valid', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $file  = UploadedFile::fake()->create('civils.pdf', 100, 'application/pdf');
 
     $response = $this->actingAs($admin)
@@ -60,7 +60,7 @@ test('import menolak file dengan format tidak valid', function () {
 });
 
 test('import menolak file melebihi ukuran 10MB', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $file  = UploadedFile::fake()->create('civils.xlsx', 11000); // 11 MB
 
     $response = $this->actingAs($admin)

@@ -20,7 +20,8 @@ class ProcessCivilRowAction
      */
     public function execute(array $row): bool
     {
-        if (empty($row['nik'])) {
+        $nik = $this->resolveNik($row);
+        if (empty($nik)) {
             return false;
         }
 
@@ -42,7 +43,8 @@ class ProcessCivilRowAction
         $transformed = [];
 
         foreach ($rows as $row) {
-            if (empty($row['nik'])) {
+            $nik = $this->resolveNik($row);
+            if (empty($nik)) {
                 continue;
             }
             $transformed[] = $this->transformRow($row);
@@ -65,22 +67,33 @@ class ProcessCivilRowAction
      */
     private function transformRow(array $row): array
     {
+        $nik = $this->resolveNik($row);
+        $name = $row['name'] ?? $row['nama'] ?? $row['nama_lengkap'] ?? $row['nama_penduduk'] ?? '-';
+        $genderRaw = $row['gender'] ?? $row['jenis_kelamin'] ?? $row['jk'] ?? 'L';
+        $gender = in_array(strtoupper((string) $genderRaw), ['P', 'PEREMPUAN', 'WOMAN', 'FEMALE']) ? 'P' : 'L';
+
         return [
             'kk' => $this->resolveKk($row),
-            'nik' => $this->cleanNumeric((string) $row['nik']),
-            'name' => $row['name'] ?? null,
+            'nik' => $nik,
+            'name' => (string) $name,
             'place_of_birth' => $row['tempat_lahir'] ?? $row['place_of_birth'] ?? $row['pob'] ?? null,
-            'date_of_birth' => $this->parseDate($row['tanggal_lahir'] ?? null),
-            'gender' => $row['jenis_kelamin'] ?? null,
-            'rt' => $row['rt'] ?? null,
-            'rw' => $row['rw'] ?? null,
-            'hamlet' => $row['dusun'] ?? null,
-            'address' => $row['alamat'] ?? null,
-            'location_type' => $this->parseLocationType($row['tipe_lokasi'] ?? null),
-            'status' => $row['status'] ?? null,
+            'date_of_birth' => $this->parseDate($row['tanggal_lahir'] ?? $row['date_of_birth'] ?? $row['tgl_lahir'] ?? null),
+            'gender' => $gender,
+            'rt' => isset($row['rt']) ? sprintf('%03d', (int) $row['rt']) : '001',
+            'rw' => isset($row['rw']) ? sprintf('%03d', (int) $row['rw']) : '001',
+            'hamlet' => $row['dusun'] ?? $row['hamlet'] ?? null,
+            'address' => $row['alamat'] ?? $row['address'] ?? $row['alamat_lengkap'] ?? '-',
+            'location_type' => $this->parseLocationType($row['tipe_lokasi'] ?? $row['location_type'] ?? null),
+            'status' => $row['status'] ?? 'Ngambang',
             'created_at' => now(),
             'updated_at' => now(),
         ];
+    }
+
+    private function resolveNik(array $row): ?string
+    {
+        $nik = $row['nik'] ?? $row['nomor_nik'] ?? $row['no_nik'] ?? null;
+        return $nik !== null ? $this->cleanNumeric((string) $nik) : null;
     }
 
     /**

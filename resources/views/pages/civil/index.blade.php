@@ -17,6 +17,24 @@
             </div>
         @endif
 
+        @if (session('info'))
+            <div class="flex items-center gap-3 rounded-lg bg-blue-50 p-4 text-sm text-blue-700 dark:bg-blue-500/15 dark:text-blue-400">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" fill="currentColor" />
+                </svg>
+                <span>{{ session('info') }}</span>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="flex items-center gap-3 rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" fill="currentColor" />
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div
                 class="flex flex-col gap-1 rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-400">
@@ -276,7 +294,7 @@
                 <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
                     <div>
                         <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                            @if (auth()->user()->role === 'admin' || auth()->user()->role === 'rw' || auth()->user()->role === 'rt')
+                            @if (auth()->user()->isAdmin() || auth()->user()->role === 'rw' || auth()->user()->role === 'rt')
                                 <div class="col-span-2 lg:col-span-1">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">No. KK</label>
                                     <input type="text" name="kk" x-model="formData.kk" placeholder="e.g. 3201010101010101"
@@ -358,7 +376,7 @@
                                     <option value="housing" class="dark:bg-gray-900">Housing (Perumahan)</option>
                                 </select>
                             </div>
-                            @if (auth()->user()->role === 'admin' || auth()->user()->role === 'rw' || auth()->user()->role === 'rt')
+                            @if (auth()->user()->isAdmin() || auth()->user()->role === 'rw' || auth()->user()->role === 'rt')
                                 <div class="col-span-2">
                                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                         Alamat <span class="text-red-500">*</span>
@@ -397,6 +415,51 @@
             </form>
         </div>
     </x-ui.modal>
+
+    {{-- Export Modal Component --}}
+    <x-ui.export-modal
+        :action="route('civils.export')"
+        title="Ekspor Data Penduduk"
+        description="Pilih format dan filter data warga yang ingin diekspor."
+    >
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Filter Status
+            </label>
+            <select name="status"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                <option value="" class="dark:bg-gray-900">Semua Status</option>
+                <option value="Militan" class="dark:bg-gray-900">Militan</option>
+                <option value="Ngambang" class="dark:bg-gray-900">Ngambang</option>
+                <option value="Lawan" class="dark:bg-gray-900">Lawan</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Filter Dusun
+            </label>
+            <input type="text" name="hamlet" placeholder="e.g. Dusun 1 (opsional)"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Filter RT
+                </label>
+                <input type="text" name="rt" placeholder="e.g. 001 (opsional)"
+                    class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90" />
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Filter RW
+                </label>
+                <input type="text" name="rw" placeholder="e.g. 002 (opsional)"
+                    class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90" />
+            </div>
+        </div>
+    </x-ui.export-modal>
 
     {{-- Import Modal Component --}}
     <x-ui.import-modal

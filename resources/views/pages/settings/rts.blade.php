@@ -138,7 +138,27 @@
         :action="route('settings.rts.export')"
         title="Ekspor Master RT"
         description="Pilih format file untuk mengunduh data Master RT."
-    />
+    >
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Filter RW</label>
+            <select name="rw_id"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                <option value="">Semua RW</option>
+                @foreach (\App\Models\Rw::orderBy('code')->get() as $rw)
+                    <option value="{{ $rw->id }}">RW {{ $rw->code }} ({{ $rw->name ?? 'RW' }})</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Filter Status</label>
+            <select name="is_active"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                <option value="">Semua Status</option>
+                <option value="1">Aktif</option>
+                <option value="0">Non-Aktif</option>
+            </select>
+        </div>
+    </x-ui.export-modal>
 
     {{-- Import Modal --}}
     <x-ui.import-modal

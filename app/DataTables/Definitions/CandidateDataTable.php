@@ -7,45 +7,46 @@ use App\DataTables\Actions\RowAction;
 use App\DataTables\Actions\ToolbarAction;
 use App\DataTables\Columns\ActionColumn;
 use App\DataTables\Columns\BadgeColumn;
+use App\DataTables\Columns\DateColumn;
+use App\DataTables\Columns\ImageColumn;
 use App\DataTables\Columns\TextColumn;
 use App\DataTables\Contracts\DataTableDefinition;
 use App\DataTables\Filters\SelectFilter;
-use App\DataTables\Filters\TextFilter;
-use App\Models\Rt;
-use App\Models\Rw;
+use App\Models\Candidate;
 use Illuminate\Database\Eloquent\Builder;
 
-class RtDataTable implements DataTableDefinition
+class CandidateDataTable implements DataTableDefinition
 {
     public function query(): Builder
     {
-        return Rt::query()->with('rw');
+        return Candidate::query();
     }
 
     public function columns(): array
     {
         return [
-            TextColumn::make('code')
-                ->label('Kode RT')
-                ->prefix('RT ')
+            TextColumn::make('number')
+                ->label('No. Urut')
                 ->sortable(),
 
             TextColumn::make('name')
-                ->label('Nama RT')
+                ->label('Nama Pasangan Calon')
                 ->sortable(),
 
-            TextColumn::make('rw_name')
-                ->label('Induk RW')
-                ->computed(fn($rt) => $rt->rw ? "RW {$rt->rw->code} ({$rt->rw->name})" : '-'),
+            ImageColumn::make('photo_url')
+                ->label('Foto')
+                ->defaultImage('/images/default-avatar.png'),
 
             BadgeColumn::make('is_active')
                 ->label('Status')
                 ->mapping([
                     1 => ['label' => 'Aktif', 'color' => 'success'],
-                    0 => ['label' => 'Non-Aktif', 'color' => 'error'],
-                    true => ['label' => 'Aktif', 'color' => 'success'],
-                    false => ['label' => 'Non-Aktif', 'color' => 'error'],
-                ])
+                    0 => ['label' => 'Nonaktif', 'color' => 'danger'],
+                ]),
+
+            DateColumn::make('created_at')
+                ->label('Dibuat Pada')
+                ->format('d M Y H:i')
                 ->sortable(),
 
             ActionColumn::make(),
@@ -54,29 +55,19 @@ class RtDataTable implements DataTableDefinition
 
     public function filters(): array
     {
-        $rwOptions = Rw::orderBy('code', 'asc')
-            ->get()
-            ->mapWithKeys(fn($rw) => [$rw->id => "RW {$rw->code} - {$rw->name}"])
-            ->toArray();
-
         return [
-            TextFilter::make('code')->label('Kode RT'),
-            TextFilter::make('name')->label('Nama RT'),
-            SelectFilter::make('rw_id')
-                ->label('Filter RW')
-                ->options($rwOptions),
             SelectFilter::make('is_active')
-                ->label('Status')
+                ->label('Status Aktif')
                 ->options([
                     '1' => 'Aktif',
-                    '0' => 'Non-Aktif',
+                    '0' => 'Nonaktif',
                 ]),
         ];
     }
 
     public function searchableColumns(): array
     {
-        return ['code', 'name'];
+        return ['name', 'number'];
     }
 
     public function actions(): array
@@ -85,15 +76,15 @@ class RtDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-rt-modal')
-                ->requiresPermission('rt.update'),
+                ->emitEvent('open-edit-candidate-modal')
+                ->requiresPermission('candidate.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
-                ->confirmMessage('Yakin ingin menghapus RT ini?')
-                ->requiresPermission('rt.delete'),
+                ->confirmMessage('Yakin ingin menghapus calon ini?')
+                ->requiresPermission('candidate.delete'),
         ];
     }
 
@@ -102,9 +93,9 @@ class RtDataTable implements DataTableDefinition
         return [
             BulkAction::make('delete')
                 ->label('Hapus')
-                ->endpoint('/settings/rts/delete-bulk')
-                ->confirmMessage('Yakin ingin menghapus data RT terpilih?')
-                ->requiresPermission('rt.delete'),
+                ->endpoint('/settings/candidates/delete-bulk')
+                ->confirmMessage('Yakin ingin menghapus data Candidate yang dipilih?')
+                ->requiresPermission('candidate.delete'),
         ];
     }
 
@@ -116,27 +107,27 @@ class RtDataTable implements DataTableDefinition
                 ->icon('download')
                 ->emitEvent('open-export-modal')
                 ->variant('secondary')
-                ->requiresPermission('rt.export'),
+                ->requiresPermission('candidate.view'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('secondary')
-                ->requiresPermission('rt.import'),
+                ->requiresPermission('candidate.create'),
 
             ToolbarAction::make('create')
-                ->label('Tambah RT')
+                ->label('Tambah Candidate')
                 ->icon('plus')
-                ->emitEvent('open-rt-modal')
+                ->emitEvent('open-candidate-modal')
                 ->variant('primary')
-                ->requiresPermission('rt.create'),
+                ->requiresPermission('candidate.create'),
         ];
     }
 
     public function perPageOptions(): array
     {
-        return [10, 25, 50, 100];
+        return [10, 25, 50];
     }
 
     public function defaultPerPage(): int
@@ -146,7 +137,7 @@ class RtDataTable implements DataTableDefinition
 
     public function defaultSortField(): string
     {
-        return 'code';
+        return 'number';
     }
 
     public function defaultSortDirection(): string

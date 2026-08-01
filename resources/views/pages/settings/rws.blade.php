@@ -122,7 +122,17 @@
         :action="route('settings.rws.export')"
         title="Ekspor Master RW"
         description="Pilih format file untuk mengunduh data Master RW."
-    />
+    >
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Filter Status</label>
+            <select name="is_active"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                <option value="">Semua Status</option>
+                <option value="1">Aktif</option>
+                <option value="0">Non-Aktif</option>
+            </select>
+        </div>
+    </x-ui.export-modal>
 
     {{-- Import Modal --}}
     <x-ui.import-modal

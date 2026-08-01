@@ -40,9 +40,9 @@ class RwDataTable implements DataTableDefinition
             BadgeColumn::make('is_active')
                 ->label('Status')
                 ->mapping([
-                    1     => ['label' => 'Aktif', 'color' => 'success'],
-                    0     => ['label' => 'Non-Aktif', 'color' => 'error'],
-                    true  => ['label' => 'Aktif', 'color' => 'success'],
+                    1 => ['label' => 'Aktif', 'color' => 'success'],
+                    0 => ['label' => 'Non-Aktif', 'color' => 'error'],
+                    true => ['label' => 'Aktif', 'color' => 'success'],
                     false => ['label' => 'Non-Aktif', 'color' => 'error'],
                 ])
                 ->sortable(),
@@ -105,7 +105,7 @@ class RwDataTable implements DataTableDefinition
             ToolbarAction::make('export')
                 ->label('Ekspor')
                 ->icon('download')
-                ->url('/settings/rws/export')
+                ->emitEvent('open-export-modal')
                 ->variant('secondary')
                 ->requiresPermission('rw.export'),
 
@@ -113,7 +113,7 @@ class RwDataTable implements DataTableDefinition
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
-                ->variant('primary')
+                ->variant('secondary')
                 ->requiresPermission('rw.import'),
 
             ToolbarAction::make('create')

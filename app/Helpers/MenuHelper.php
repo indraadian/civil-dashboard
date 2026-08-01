@@ -43,6 +43,9 @@ class MenuHelper
 
         // Master Data Menu Group
         $masterSubItems = [];
+        if ($user->can('candidate.view')) {
+            $masterSubItems[] = ['name' => 'Master Candidate', 'path' => '/settings/candidates'];
+        }
         if ($user->can('tps.view')) {
             $masterSubItems[] = ['name' => 'Master TPS', 'path' => '/settings/tps'];
         }
