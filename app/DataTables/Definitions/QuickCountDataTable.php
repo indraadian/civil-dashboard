@@ -91,13 +91,15 @@ class QuickCountDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-quick-count-modal'),
+                ->emitEvent('open-edit-quick-count-modal')
+                ->requiresPermission('quick-count.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
-                ->confirmMessage('Yakin ingin menghapus data Quick Count ini?'),
+                ->confirmMessage('Yakin ingin menghapus data Quick Count ini?')
+                ->requiresPermission('quick-count.delete'),
         ];
     }
 
@@ -107,7 +109,8 @@ class QuickCountDataTable implements DataTableDefinition
             BulkAction::make('delete')
                 ->label('Hapus Terpilih')
                 ->endpoint('/quick-counts/delete-bulk')
-                ->confirmMessage('Yakin ingin menghapus data Quick Count terpilih?'),
+                ->confirmMessage('Yakin ingin menghapus data Quick Count terpilih?')
+                ->requiresPermission('quick-count.delete'),
         ];
     }
 
@@ -119,22 +122,21 @@ class QuickCountDataTable implements DataTableDefinition
                 ->icon('download')
                 ->url('/quick-counts/export')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('quick-count.export'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('quick-count.import'),
 
             ToolbarAction::make('create')
                 ->label('Input Quick Count')
                 ->icon('plus')
                 ->emitEvent('open-quick-count-modal')
-                ->variant('primary'),
+                ->variant('primary')
+                ->requiresPermission('quick-count.create'),
         ];
     }
 

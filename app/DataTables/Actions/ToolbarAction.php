@@ -12,6 +12,7 @@ class ToolbarAction
     protected string $method = 'GET';
     protected string $variant = 'primary';
     protected array $requiresRoles = [];
+    protected array $requiresPermissions = [];
 
     public function __construct(string $name)
     {
@@ -85,6 +86,23 @@ class ToolbarAction
     }
 
     /**
+     * Restrict this action to users with the given permission(s).
+     */
+    public function requiresPermission(string|array ...$permissions): static
+    {
+        foreach ($permissions as $permission) {
+            if (is_array($permission)) {
+                $this->requiresPermissions = array_merge($this->requiresPermissions, $permission);
+            } else {
+                $this->requiresPermissions[] = $permission;
+            }
+        }
+        $this->requiresPermissions = array_unique($this->requiresPermissions);
+
+        return $this;
+    }
+
+    /**
      * Restrict this action to users with the given role(s).
      */
     public function requiresRole(string|array ...$roles): static
@@ -106,13 +124,27 @@ class ToolbarAction
      */
     public function isAuthorized(): bool
     {
-        if (empty($this->requiresRoles)) {
-            return true;
-        }
-
         $user = auth()->user();
 
-        return $user && in_array($user->role, $this->requiresRoles, true);
+        if (!$user) {
+            return false;
+        }
+
+        if (!empty($this->requiresPermissions)) {
+            foreach ($this->requiresPermissions as $permission) {
+                if ($user->can($permission)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (!empty($this->requiresRoles)) {
+            return in_array($user->role, $this->requiresRoles, true) || $user->hasAnyRole($this->requiresRoles);
+        }
+
+        return true;
     }
 
     /**

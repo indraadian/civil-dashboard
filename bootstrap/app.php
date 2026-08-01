@@ -31,7 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // 1. Daftarkan alias middleware di sini
         $middleware->alias([
-            'role' => \App\Http\Middleware\ValidateRole::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
 
         // 2. Tidak perlu manual append StartSession karena 

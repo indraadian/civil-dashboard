@@ -17,7 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class SettingController extends Controller
 {
@@ -51,7 +53,9 @@ class SettingController extends Controller
             ->orderBy('code', 'asc')
             ->get();
 
-        return view('pages.settings.users', compact('rws', 'config'));
+        $roles = Role::orderBy('name', 'asc')->get();
+
+        return view('pages.settings.users', compact('rws', 'config', 'roles'));
     }
 
     /**
@@ -67,12 +71,19 @@ class SettingController extends Controller
      */
     public function storeUser(StoreUserRequest $request): RedirectResponse
     {
+        $roleName = $request->role;
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
+            'role' => Str::snake(strtolower($roleName)),
             'password' => Hash::make($request->password),
         ]);
+
+        $spatieRole = Role::where('name', $roleName)->first();
+        if ($spatieRole) {
+            $user->assignRole($spatieRole);
+        }
 
         $this->syncUserLocationScopes($user, $request->input('scopes', []));
 
@@ -85,7 +96,10 @@ class SettingController extends Controller
      */
     public function editUser(User $user): JsonResponse
     {
-        return response()->json($user->load(['locationScopes.rw', 'locationScopes.rt']));
+        $userData = $user->load(['locationScopes.rw', 'locationScopes.rt', 'roles'])->toArray();
+        $userData['spatie_role'] = $user->roles->first()?->name ?? $user->role;
+
+        return response()->json($userData);
     }
 
     /**
@@ -93,10 +107,12 @@ class SettingController extends Controller
      */
     public function updateUser(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        $roleName = $user->isSuperAdmin() ? 'Super Admin' : $request->role;
+
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $user->isSuperAdmin() ? 'super_admin' : $request->role,
+            'role' => Str::snake(strtolower($roleName)),
         ];
 
         if ($request->filled('password')) {
@@ -104,6 +120,11 @@ class SettingController extends Controller
         }
 
         $user->update($data);
+
+        $spatieRole = Role::where('name', $roleName)->first();
+        if ($spatieRole) {
+            $user->syncRoles([$spatieRole]);
+        }
 
         $this->syncUserLocationScopes($user, $request->input('scopes', []));
 

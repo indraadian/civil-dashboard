@@ -71,15 +71,15 @@ class TpsDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-tps-modal'),
+                ->emitEvent('open-edit-tps-modal')
+                ->requiresPermission('tps.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
                 ->confirmMessage('Yakin ingin menghapus TPS ini?')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('tps.delete'),
         ];
     }
 
@@ -90,8 +90,7 @@ class TpsDataTable implements DataTableDefinition
                 ->label('Hapus Terpilih')
                 ->endpoint('/settings/tps/delete-bulk')
                 ->confirmMessage('Yakin ingin menghapus TPS yang dipilih?')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('tps.delete'),
         ];
     }
 
@@ -103,24 +102,21 @@ class TpsDataTable implements DataTableDefinition
                 ->icon('download')
                 ->url('/settings/tps/export')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('tps.export'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('tps.import'),
 
             ToolbarAction::make('create')
                 ->label('Tambah TPS Baru')
                 ->icon('plus')
                 ->emitEvent('open-tps-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('tps.create'),
         ];
     }
 

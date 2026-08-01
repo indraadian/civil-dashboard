@@ -125,15 +125,15 @@ class CivilDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-civil-modal'),
+                ->emitEvent('open-edit-civil-modal')
+                ->requiresPermission('civil.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
                 ->confirmMessage('Yakin ingin menghapus data ini?')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('civil.delete'),
         ];
     }
 
@@ -144,8 +144,7 @@ class CivilDataTable implements DataTableDefinition
                 ->label('Hapus')
                 ->endpoint('/civils/delete-bulk')
                 ->confirmMessage('Yakin ingin menghapus data yang dipilih?')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('civil.delete'),
         ];
     }
 
@@ -157,22 +156,21 @@ class CivilDataTable implements DataTableDefinition
                 ->icon('download')
                 ->emitEvent('open-export-modal')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('civil.export'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('primary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('civil.import'),
 
             ToolbarAction::make('create')
                 ->label('Tambah')
                 ->icon('plus')
                 ->emitEvent('open-civil-modal')
                 ->variant('primary')
+                ->requiresPermission('civil.create'),
         ];
     }
 

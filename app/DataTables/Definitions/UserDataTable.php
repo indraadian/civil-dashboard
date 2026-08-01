@@ -109,13 +109,15 @@ class UserDataTable implements DataTableDefinition
             RowAction::make('edit')
                 ->label('Edit')
                 ->icon('edit')
-                ->emitEvent('open-edit-user-modal'),
+                ->emitEvent('open-edit-user-modal')
+                ->requiresPermission('user.update'),
 
             RowAction::make('delete')
                 ->label('Hapus')
                 ->icon('delete')
                 ->method('DELETE')
-                ->confirmMessage('Yakin ingin menghapus user ini?'),
+                ->confirmMessage('Yakin ingin menghapus user ini?')
+                ->requiresPermission('user.delete'),
         ];
     }
 
@@ -125,7 +127,8 @@ class UserDataTable implements DataTableDefinition
             BulkAction::make('delete')
                 ->label('Hapus')
                 ->endpoint('/settings/users/delete-bulk')
-                ->confirmMessage('Yakin ingin menghapus data user terpilih?'),
+                ->confirmMessage('Yakin ingin menghapus data user terpilih?')
+                ->requiresPermission('user.delete'),
         ];
     }
 
@@ -137,22 +140,21 @@ class UserDataTable implements DataTableDefinition
                 ->icon('download')
                 ->emitEvent('open-export-modal')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('user.export'),
 
             ToolbarAction::make('import')
                 ->label('Impor')
                 ->icon('upload')
                 ->emitEvent('open-import-modal')
                 ->variant('secondary')
-                ->requiresRole('admin')
-                ->requiresRole('super_admin'),
+                ->requiresPermission('user.import'),
 
             ToolbarAction::make('create')
                 ->label('Tambah User')
                 ->icon('plus')
                 ->emitEvent('open-user-modal')
-                ->variant('primary'),
+                ->variant('primary')
+                ->requiresPermission('user.create'),
         ];
     }
 
