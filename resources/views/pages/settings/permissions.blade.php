@@ -22,7 +22,7 @@
             <div>
                 <h6 class="font-semibold text-blue-900 dark:text-blue-200">Manajemen Permission Sistem</h6>
                 <p class="mt-0.5 text-xs text-blue-700 dark:text-blue-300">
-                    Daftar permission dihasilkan secara otomatis dari definisi modul. Tekan tombol <strong>Sync Permission</strong> di bawah untuk mensinkronkan permission jika terdapat penambahan fitur/modul baru.
+                    Daftar permission dihasilkan secara otomatis dari definisi modul. Tekan tombol <strong>Sync Role & Permission</strong> untuk mensinkronkan permission dan hak akses role dasar jika terdapat penambahan fitur/modul baru.
                 </p>
             </div>
         </div>

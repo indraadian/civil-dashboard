@@ -257,5 +257,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/settings/general', [SettingController::class, 'general'])->name('settings.general');
         Route::post('/settings/migrate', [SettingController::class, 'migrate'])->name('settings.migrate');
         Route::post('/settings/patch-locations', [SettingController::class, 'patchLocations'])->name('settings.patch-locations');
+        Route::post('/settings/sync-roles-permissions', [SettingController::class, 'syncRolesPermissions'])->name('settings.sync-roles-permissions');
     });
 });

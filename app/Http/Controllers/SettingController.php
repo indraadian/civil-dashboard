@@ -11,6 +11,7 @@ use App\Models\Rw;
 use App\Models\User;
 use App\Models\UserLocationScope;
 use App\Services\LocationSyncService;
+use App\Services\PermissionSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -210,6 +211,24 @@ class SettingController extends Controller
             Log::error('Patch location sync failed.', ['message' => $e->getMessage()]);
 
             return back()->with('error', 'Terjadi kesalahan saat patch lokasi: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sinkronisasi Role & Permission default system.
+     */
+    public function syncRolesPermissions(PermissionSyncService $syncService): RedirectResponse
+    {
+        try {
+            $result = $syncService->syncRolesAndPermissions();
+
+            $message = "Berhasil mensinkronkan {$result['roles']} Role dan {$result['permissions']} Permission beserta pemetaan hak akses defaultnya!";
+
+            return back()->with('success', $message);
+        } catch (\Throwable $e) {
+            Log::error('Role & Permission sync failed.', ['message' => $e->getMessage()]);
+
+            return back()->with('error', 'Terjadi kesalahan saat sinkronisasi Role & Permission: ' . $e->getMessage());
         }
     }
 

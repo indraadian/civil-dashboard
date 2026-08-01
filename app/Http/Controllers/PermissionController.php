@@ -37,9 +37,9 @@ class PermissionController extends Controller
      */
     public function sync(PermissionSyncService $syncService): RedirectResponse
     {
-        $count = $syncService->sync();
+        $result = $syncService->syncRolesAndPermissions();
 
         return redirect()->route('settings.permissions')
-            ->with('success', "Berhasil me-refresh dan mensinkronkan {$count} permission dari modul.");
+            ->with('success', "Berhasil mensinkronkan {$result['roles']} Role dan {$result['permissions']} Permission dari modul.");
     }
 }

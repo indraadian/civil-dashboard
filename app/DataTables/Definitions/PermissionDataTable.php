@@ -68,9 +68,9 @@ class PermissionDataTable implements DataTableDefinition
     {
         return [
             ToolbarAction::make('sync')
-                ->label('Sync Permission')
+                ->label('Sync Role & Permission')
                 ->icon('upload')
-                ->url('/settings/permissions/sync')
+                ->url('/settings/sync-roles-permissions')
                 ->method('POST')
                 ->variant('primary')
                 ->requiresPermission('permission.sync'),
