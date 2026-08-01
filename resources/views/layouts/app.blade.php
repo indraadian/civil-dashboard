@@ -138,7 +138,7 @@
     <x-common.preloader />
     {{-- preloader end --}}
 
-    <div class="min-h-screen xl:flex">
+    <div class="min-h-screen xl:flex @if(!empty($isAppLocked)) pointer-events-none select-none @endif" @if(!empty($isAppLocked)) aria-hidden="true" @endif>
         @include('layouts.backdrop')
         @include('layouts.sidebar')
 
@@ -157,6 +157,9 @@
         </div>
 
     </div>
+
+    {{-- App Lock Modal Component --}}
+    <x-ui.app-lock-modal :is-locked="$isAppLocked ?? false" />
 
     {{-- Global Import/Export UI & Profile Components --}}
     <x-ui.toast-notification-widget />

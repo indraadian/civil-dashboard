@@ -1,439 +1,197 @@
-# TailAdmin Laravel - Tailwind CSS Free Laravel Dashboard
+# QuickCount PILKADES & Civil Dashboard System
 
-**TailAdmin Laravel** is a modern, production-ready admin dashboard template powered by **Laravel 12**, **Tailwind CSS v4**, **Alpine.js**, and a clean, modular architecture. TailAdmin is one of the most popular Tailwind CSS dashboard now also available for Larvael. It’s designed for building fast, scalable admin panels, CRM dashboards, SaaS backends, and any data-driven application where clarity and performance matter.
-![TailAdmin - Next.js Dashboard Preview](./tailadmin-laravel.png)
+**QuickCount PILKADES & Civil Dashboard System** adalah aplikasi manajemen data penduduk (Civil), pemetaan wilayah (TPS, RT, RW), serta monitoring perhitungan suara **Quick Count Pilkades** secara real-time. Aplikasi ini dibangun di atas pondasi **TailAdmin Laravel Dashboard Template** dengan teknologi modern **Laravel 12**, **PHP 8.4**, **Tailwind CSS v4**, **Alpine.js**, dan arsitektur modular yang responsif.
 
+![Dashboard Preview](./tailadmin-laravel.png)
 
-## Quick Links
+---
 
-* [✨ Get TailAdmin Laravel](https://tailadmin.com/laravel)
-* [📄 Documentation](https://tailadmin.com/docs)
-* [⬇️ Download](https://tailadmin.com/download)
-* [🌐 Live Demo](https://laravel-demo.tailadmin.com)
+## 🎨 Base Dashboard Template
 
-Here’s a tighter, more search-friendly version that highlights value and avoids fluff while keeping your structure intact.
+Aplikasi ini menggunakan UI & Layout dasar dari **[TailAdmin Laravel](https://tailadmin.com/laravel)** - salah satu template dashboard Tailwind CSS terpopuler yang telah disesuaikan dengan arsitektur backend Laravel 12, Blade components, dan Alpine.js reactivity.
 
-## ✨ Key Features
+---
 
-* 🚀 **Laravel 12 Core** - Built on the latest Laravel release with improved routing, security, and Blade templating
-* 🎨 **Tailwind CSS v4** - Utility-first styling for rapid, consistent UI development
-* ⚡ **Alpine.js Interactivity** - Lightweight reactivity without a heavy JavaScript framework
-* 📦 **Vite Build System** - Fast dev server, instant HMR, and optimized production builds
-* 📱 **Fully Responsive Layouts** - Smooth, mobile-first design that adapts across all screen sizes
-* 🌙 **Built-in Dark Mode** - Ready-to-use modern dark theme for better usability and aesthetics
-* 📊 **Advanced UI Components** - Charts, data tables, forms, calendars, modals, and reusable blocks for complex dashboards
-* 🎯 **Production-Ready Dashboard UI** - Clean, modern interface crafted for real apps, not placeholder demos
+## ✨ Fitur Utama Sistem (Key Features)
 
-### Other Versions
+### 🗳️ 1. Quick Count Perhitungan Suara TPS
+- **Real-Time Monitoring**: Ringkasan perolehan suara per calon, persentase TPS masuk, total suara sah, tidak sah, dan pengguna hak pilih.
+- **Dynamic Candidate Votes**: Penginputan suara per TPS secara dinamis sesuai daftar pasangan calon pilkades yang aktif.
+- **Validasi Suara (Sum Constraint)**: Validasi otomatis agar `Total Suara Sah + Tidak Sah = Total Pengguna Hak Pilih` (tidak melebihi DPT).
+- **Bukti Form C1**: Upload dan preview foto Form C1 per TPS.
 
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [React.js Version](https://github.com/TailAdmin/free-react-tailwind-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
-- [Angular Version](https://github.com/TailAdmin/free-angular-tailwind-dashboard)
-- [Laravel Version](https://github.com/TailAdmin/tailadmin-laravel)
+### 👥 2. Manajemen Master Candidate (Pasangan Calon)
+- Kelola pasangan calon (Nomor urut, Nama lengkap calon, Foto, Status aktif/nonaktif).
+- Integrasi penuh ke form penginputan Quick Count dan visualisasi hasil perolehan suara.
 
-## 📋 Requirements
-To set up TailAdmin Laravel, make sure your environment includes:
+### 🇮🇩 3. Manajemen Data Penduduk (Civil)
+- Pencatatan NIK, KK, Nama, Tempat/Tgl Lahir, Jenis Kelamin, Dusun, RT, RW, Alamat, Tipe Lokasi (Kampung/Perumahan).
+- Kategori Status Politik Warga: **Militan**, **Ngambang**, dan **Lawan** disertai widget statistik indikator.
 
-* **PHP 8.2+**
-* **Composer** (PHP dependency manager)
-* **Node.js 18+** and **npm** (for compiling frontend assets)
-* **Database** - Works with SQLite (default), MySQL, or PostgreSQL
+### 📍 4. Master Wilayah & TPS
+- Pengelolaan Master TPS, RT, dan RW beserta kuota DPT.
+- **Patch Tool Synchronizer**: Sinkronisasi otomatis data Master RT & RW dari data warga (Civil).
 
-### Tailwind CSS Laravel Dashboard
+### 🔐 5. User Management & Hak Akses Wilayah
+- **Spatie Laravel Permission**: Peran bertingkat (`Super Admin`, `Admin`, `RW`, `RT`, `User / Relawan`).
+- **Location Scoping**: Pembatasan hak akses wilayah penginputan data berdasarkan RW dan RT user.
+- **Super Admin Wildcard Bypass**: Akses penuh Super Admin ke seluruh modul dan konfigurasi sistem.
 
-TailAdmin delivers a refined Tailwind CSS Laravel Dashboard experience, combining Laravel’s robust backend with Tailwind’s flexible utility classes. The result is a clean, fast, and customizable dashboard that helps developers build modern admin interfaces without the usual front-end complexity. It’s ideal for teams looking for a Tailwind-powered Laravel starter that stays lightweight and easy to scale.
+### ⚡ 6. Pipeline Async Ekspor & Impor (Queue-Based)
+- **Ekspor Data (XLSX & CSV)**: Ekspor berlatar belakang (background queue) dengan filter spesifik per modul.
+- **Impor Data Batch**: Pengunggahan berkas Excel/CSV secara chunk (upsert query) hemat memori.
+- **Modals & Reports**: Modal dialog ekspor/impor terpadu dan modal laporan rincian error impor.
 
-### Laravel Admin Dashboard
+### 🔒 7. Global Application Lock (Server Activation Lock)
+- Penguncian aplikasi global saat `APP_ACTIVE=false` di `.env`.
+- Modal non-dismissable mengisolasi akses pengguna non-admin (cegah ESC, click outside, dan tombol back browser).
+- Bypass otomatis untuk akun Administrator.
 
-If you’re searching for a dependable Laravel Admin Dashboard template that’s easy to set up and ready for production, TailAdmin fits the job. It offers a polished UI, reusable components, optimized performance, and all the essentials needed to launch dashboards, CRM systems, and internal tools quickly. It gives developers a solid foundation, so projects move faster with fewer decisions to worry about.
+### 🔔 8. Real-Time Notification & Toast Widget
+- Widget notifikasi melayang (Toast) di sudut kanan bawah dengan indikator progress bar task background.
+- Notifikasi otomatis untuk aksi berhasil, gagal, informasi, dan peringatan session.
 
-### Check Your Environment
+---
 
-Verify your installations:
+## 📄 Template Import Resmi (Import Excel Templates)
 
+Sistem menyediakan 7 berkas contoh **Template Import Excel (.xlsx)** yang telah diformat dan disesuaikan 100% dengan validasi sistem:
+
+1. **`template_civil.xlsx`** (Template Import Data Penduduk)
+   - Kolom: `NIK`, `KK`, `Nama`, `Tempat Lahir`, `Tanggal Lahir`, `Jenis Kelamin`, `RT`, `RW`, `Dusun`, `Alamat`, `Tipe Lokasi`, `Status`
+2. **`template_candidate.xlsx`** (Template Import Master Candidate)
+   - Kolom: `Nomor Urut`, `Nama Pasangan Calon`, `Status Aktif`
+3. **`template_user.xlsx`** (Template Import User)
+   - Kolom: `Nama Lengkap`, `Email`, `Role`, `Password`
+4. **`template_tps.xlsx`** (Template Import Master TPS)
+   - Kolom: `Kode TPS`, `Nama TPS`, `Lokasi`, `Total DPT`
+5. **`template_rt.xlsx`** (Template Import Master RT)
+   - Kolom: `Kode RW`, `Kode RT`, `Nama RT`, `Status`
+6. **`template_rw.xlsx`** (Template Import Master RW)
+   - Kolom: `Kode RW`, `Nama RW`, `Status`
+7. **`template_quick_count.xlsx`** (Template Import Quick Count TPS)
+   - Kolom: `Kode TPS`, `Perolehan Suara`, `Total DPT`, `Catatan`
+
+> *Berkas template di atas dapat diunduh secara langsung dari modal dialog Impor pada masing-masing modul.*
+
+---
+
+## 📋 Persyaratan Sistem (Requirements)
+
+- **PHP 8.2+** (Direkomendasikan **PHP 8.4**)
+- **Composer** (PHP Dependency Manager)
+- **Node.js 18+** & **npm**
+- **MySQL / MariaDB**
+
+---
+
+## 🚀 Panduan Instalasi (Quick Start)
+
+### 1. Clone Repositori
 ```bash
-php -v
-composer -V
-node -v
-npm -v
+git clone https://github.com/indraadian/civil-dashboard.git
+cd civil-dashboard
 ```
 
-## 🚀 Quick Start Installation
-
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/TailAdmin/tailadmin-laravel.git
-cd tailadmin-laravel
-```
-
-### Step 2: Install PHP Dependencies
-
+### 2. Install Dependensi PHP & Node.js
 ```bash
 composer install
-```
-
-This command will install all Laravel dependencies defined in `composer.json`.
-
-### Step 3: Install Node.js Dependencies
-
-```bash
 npm install
 ```
 
-Or if you prefer yarn or pnpm:
-
-```bash
-# Using yarn
-yarn install
-
-# Using pnpm
-pnpm install
-```
-
-### Step 4: Environment Configuration
-
-Copy the example environment file:
-
+### 3. Konfigurasi Environment
+Salin berkas `.env.example` ke `.env`:
 ```bash
 cp .env.example .env
 ```
 
-**For Windows users:**
-
-```bash
-copy .env.example .env
-```
-
-**Or create it programmatically:**
-
-```bash
-php -r "file_exists('.env') || copy('.env.example', '.env');"
-```
-
-### Step 5: Generate Application Key
-
-```bash
-php artisan key:generate
-```
-
-This creates a unique encryption key for your application.
-
-### Step 6: Configure Database
-
-#### Option A: Using MySQL/PostgreSQL
-
-Update your `.env` file with your database credentials:
-
+Atur kredensial database MySQL Anda di `.env`:
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=tailadmin_db
-DB_USERNAME=your_username
+DB_DATABASE=civil_dashboard
+DB_USERNAME=root
 DB_PASSWORD=your_password
+
+# Pengaturan Kunci Sistem
+APP_ACTIVE=true
 ```
 
-Create the database:
-
+### 4. Generate Key & Link Storage
 ```bash
-# MySQL
-mysql -u root -p -e "CREATE DATABASE tailadmin_db;"
-
-# PostgreSQL
-createdb tailadmin_db
-```
-
-Run migrations:
-
-```bash
-php artisan migrate
-```
-
-### Step 7: (Optional) Seed the Database
-
-If you want sample data:
-
-```bash
-php artisan db:seed
-```
-
-### Step 8: Storage Link
-
-Create a symbolic link for file storage:
-
-```bash
+php artisan key:generate
 php artisan storage:link
 ```
 
-## 🏃 Running the Application
+### 5. Jalankan Migrasi & Seeder Database
+```bash
+php artisan migrate:fresh --seed
+```
 
-### Development Mode (Recommended)
+---
 
-The easiest way to start development is using the built-in script:
+## 🏃 Menjalankan Aplikasi
 
+### Mode Pengembangan (Development)
+Jalankan dev server Laravel, Vite, dan Queue Worker secara bersamaan dengan satu perintah:
 ```bash
 composer run dev
 ```
 
-This single command starts:
-- ✅ Laravel development server (http://localhost:8000)
-- ✅ Vite dev server for hot module reloading
-- ✅ Queue worker for background jobs
-- ✅ Log monitoring
+Aplikasi dapat diakses di: **[http://localhost:8000](http://localhost:8000)**
 
-**Access your application at:** [http://localhost:8000](http://localhost:8000)
+### Menjalankan Perintah Terpisah (Opsional)
+- **Laravel Dev Server**: `php artisan serve`
+- **Vite Asset Compiler**: `npm run dev`
+- **Queue Worker**: `php artisan queue:work`
 
-### Manual Development Setup
+---
 
-If you prefer to run services individually in separate terminal windows:
+## 🧪 Pengujian (Testing)
 
-**Terminal 1 - Laravel Server:**
-```bash
-php artisan serve
-```
-
-**Terminal 2 - Frontend Assets:**
-```bash
-npm run dev
-```
-
-### Building for Production
-
-#### Build Frontend Assets
-
-```bash
-npm run build
-```
-
-#### Optimize Laravel
-
-```bash
-# Clear and cache configuration
-php artisan config:cache
-
-# Cache routes
-php artisan route:cache
-
-# Cache views
-php artisan view:cache
-
-# Optimize autoloader
-composer install --optimize-autoloader --no-dev
-```
-
-#### Production Environment
-
-Update your `.env` for production:
-
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://yourdomain.com
-```
-
-
-## 🧪 Testing
-
-Run the test suite using Pest:
-
-```bash
-composer run test
-```
-
-Or manually:
-
+Proyek ini dilengkapi dengan unit & feature test suite menggunakan **Pest**:
 ```bash
 php artisan test
 ```
 
-Run with coverage:
+---
 
-```bash
-php artisan test --coverage
-```
-
-Run specific tests:
-
-```bash
-php artisan test --filter=ExampleTest
-```
-
-## 📜 Available Commands
-
-### Composer Scripts
-
-```bash
-# Start development environment
-composer run dev
-
-# Run tests
-composer run test
-
-# Code formatting (if configured)
-composer run format
-
-# Static analysis (if configured)
-composer run analyze
-```
-
-### NPM Scripts
-
-```bash
-# Start Vite dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint JavaScript/TypeScript
-npm run lint
-
-# Format code
-npm run format
-```
-
-### Artisan Commands
-
-```bash
-# Start development server
-php artisan serve
-
-# Run migrations
-php artisan migrate
-
-# Rollback migrations
-php artisan migrate:rollback
-
-# Fresh migrations with seeding
-php artisan migrate:fresh --seed
-
-# Generate application key
-php artisan key:generate
-
-# Clear all caches
-php artisan optimize:clear
-
-# Cache everything for production
-php artisan optimize
-
-# Create symbolic link for storage
-php artisan storage:link
-
-# Start queue worker
-php artisan queue:work
-
-# List all routes
-php artisan route:list
-
-# Create a new controller
-php artisan make:controller YourController
-
-# Create a new model
-php artisan make:model YourModel -m
-
-# Create a new migration
-php artisan make:migration create_your_table
-```
-
-## 📁 Project Structure
+## 🛠️ Struktur Proyek (Project Structure)
 
 ```
-tailadmin-laravel/
-├── app/                    # Application logic
-│   ├── Http/              # Controllers, Middleware, Requests
-│   ├── Models/            # Eloquent models
-│   └── Providers/         # Service providers
-├── bootstrap/             # Framework bootstrap files
-├── config/                # Configuration files
-├── database/              # Migrations, seeders, factories
-│   ├── migrations/
-│   ├── seeders/
-│   └── factories/
-├── public/                # Public assets (entry point)
-│   ├── build/            # Compiled assets (generated)
-│   └── index.php         # Application entry point
-├── resources/             # Views and raw assets
-│   ├── css/              # Stylesheets (Tailwind)
-│   ├── js/               # JavaScript files (Alpine.js)
-│   └── views/            # Blade templates
-├── routes/                # Route definitions
-│   ├── web.php           # Web routes
-│   ├── api.php           # API routes
-│   └── console.php       # Console routes
-├── storage/               # Logs, cache, uploads
-│   ├── app/
-│   ├── framework/
-│   └── logs/
-├── tests/                 # Pest test files
-│   ├── Feature/
-│   └── Unit/
-├── .env.example           # Example environment file
-├── artisan                # Artisan CLI
-├── composer.json          # PHP dependencies
-├── package.json           # Node dependencies
-├── vite.config.js         # Vite configuration
-└── tailwind.config.js     # Tailwind configuration
+civil-dashboard/
+├── app/
+│   ├── Actions/            # Single-responsibility actions (Import/Export processors)
+│   ├── DataTables/         # Standardized DataTables Definitions, Columns, Filters & Actions
+│   ├── Http/
+│   │   ├── Controllers/    # Application Controllers
+│   │   └── Requests/       # Form Request Validation Rules
+│   ├── Models/             # Eloquent Models (Civil, Candidate, QuickCount, Tps, Rt, Rw, User)
+│   ├── Policies/           # Authorization Policies
+│   ├── Providers/          # Service Providers & View Composers
+│   └── Services/           # Export & Import Service Pipelines
+├── config/
+│   ├── app.php             # General Config & app_status lock setting
+│   └── import_templates.php# Configuration & validation rules for import templates
+├── database/
+│   ├── migrations/         # Database migrations
+│   └── seeders/            # Database seeders (User, RolePermission, Candidate, TPS, Civil)
+├── public/
+│   └── templates/          # Official downloadable Excel templates (.xlsx)
+├── resources/
+│   ├── css/                # Tailwind CSS v4 stylesheets
+│   ├── js/                 # Alpine.js & Datatable Engine scripts
+│   └── views/              # Blade Templates & Reusable UI Components
+│       ├── components/ui/  # Reusable UI Components (Modal, Export Modal, Toast, Lock Modal)
+│       └── pages/          # Page views (Civil, Quick Count, Settings)
+└── routes/
+    └── web.php             # Web Routes & Authorization Middlewares
 ```
 
-## 🐛 Troubleshooting
+---
 
-### Common Issues
+## 📜 Lisensi & Atribusi
 
-#### "Class not found" errors
-```bash
-composer dump-autoload
-```
-
-#### Permission errors on storage/bootstrap/cache
-```bash
-chmod -R 775 storage bootstrap/cache
-```
-
-#### NPM build errors
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-#### Clear all caches
-```bash
-php artisan optimize:clear
-```
-
-#### Database connection errors
-- Check `.env` database credentials
-- Ensure database server is running
-- Verify database exists
-
-## 🔄 Update Log
-
-### [2026-05-23]
-
-- Added **AI Settings** page to configure models, keys, and token limits.
-- Added **Maps** page with MapLibre GL, Leaflet, and iframe styles.
-- Added **Vector Maps** page powered by AmCharts 5 geodata (World & USA).
-- Added **Radar Charts** page with 3 unique formats.
-- Added **Radial Progress Charts** page featuring 4 custom layout templates.
-- Introduced new **Bar Charts Five & Six** and **Pie Charts Four & Five**.
-
-### [April 28, 2026]
-- Added **AI Dashboard** with token usage and revenue tracking.
-- Added **Sales Dashboard** with retention and multi-channel analytics.
-- Added **Finance Dashboard** with cashflow and balance management.
-- Introduced **6 New Layout variations** for improved UI flexibility.
-- Integrated **Advanced Data Visualization** with 7+ new chart types.
-
-### [2026-03-15]
-- Fixed PHP 8.5 deprecation warning
-
-### [2025-12-29]
-- Added Date Picker in Statistics Chart
-
-## License
-
-Refer to our [LICENSE](https://tailadmin.com/license) page for more information.
+- **TailAdmin Laravel Dashboard**: Hak cipta milik [TailAdmin](https://tailadmin.com).
+- **Proyek Civil Dashboard & Quick Count PILKADES**: Dikembangkan untuk manajemen data warga & monitoring pilkades.
