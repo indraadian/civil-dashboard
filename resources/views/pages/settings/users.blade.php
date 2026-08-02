@@ -62,7 +62,9 @@
                         <select name="role" x-model="role" required
                             class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                             @foreach ($roles as $r)
-                                <option value="{{ $r->name }}">{{ $r->name }} {{ $r->name === 'User' ? '(Dibatasi Wilayah)' : '' }}</option>
+                                <option value="{{ $r->name }}">{{ $r->name }}
+                                    {{ $r->name === 'User' ? '(Dibatasi Wilayah)' : '' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -81,7 +83,8 @@
                 </div>
 
                 {{-- Scope Wilayah Section --}}
-                <div x-show="role.toLowerCase() === 'user'" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div x-show="role.toLowerCase() != 'admin' && role.toLowerCase() != 'super admin'"
+                    class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <label class="text-sm font-semibold text-gray-800 dark:text-white">Pengaturan Hak Akses
                             Wilayah</label>
@@ -142,7 +145,7 @@
                                                         :value="rtItem.id" x-model="scope.selected_rt_ids"
                                                         :disabled="scope.all_rts" class="rounded text-brand-500" />
                                                     <span class="text-gray-800 dark:text-white" x-text="'RT ' + rtItem.code + (rtItem.name ? ' (' + rtItem.name
-                                                            + ')' : '' )"></span>
+                                                                    + ')' : '' )"></span>
                                                 </label>
                                             </template>
                                         </div>
@@ -190,7 +193,9 @@
                         <select name="role" x-model="role" required
                             class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                             @foreach ($roles as $r)
-                                <option value="{{ $r->name }}">{{ $r->name }} {{ $r->name === 'User' ? '(Dibatasi Wilayah)' : '' }}</option>
+                                <option value="{{ $r->name }}">{{ $r->name }}
+                                    {{ $r->name === 'User' ? '(Dibatasi Wilayah)' : '' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -360,11 +365,8 @@
     </script>
 
     {{-- Export Modal Component --}}
-    <x-ui.export-modal
-        :action="route('settings.users.export')"
-        title="Ekspor Data User"
-        description="Pilih format file dan filter pengguna yang ingin diekspor."
-    >
+    <x-ui.export-modal :action="route('settings.users.export')" title="Ekspor Data User"
+        description="Pilih format file dan filter pengguna yang ingin diekspor.">
         <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Filter Role</label>
             <select name="role"
@@ -380,16 +382,11 @@
     </x-ui.export-modal>
 
     {{-- Import Modal Component --}}
-    <x-ui.import-modal
-        module="user"
-        :action="route('settings.users.import')"
-        title="Impor Data User"
-        description="Unggah file CSV / Excel untuk mengimpor atau memperbarui data akun pengguna."
-        :validationRules="[
+    <x-ui.import-modal module="user" :action="route('settings.users.import')" title="Impor Data User"
+        description="Unggah file CSV / Excel untuk mengimpor atau memperbarui data akun pengguna." :validationRules="[
             '<strong>Nama Lengkap</strong>: Wajib diisi.',
             '<strong>Email</strong>: Email unik pengguna.',
             '<strong>Role</strong>: `admin`, `rw`, `rt`, atau `user` (default: `user`).',
             '<strong>Password</strong>: Password akun (default: `12345678`).',
-        ]"
-    />
+        ]" />
 @endsection
