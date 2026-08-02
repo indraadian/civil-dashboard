@@ -16,6 +16,7 @@ class RoleDataTable implements DataTableDefinition
     public function query(): Builder
     {
         return Role::query()
+            ->where('id', '!=', '1')
             ->withCount(['users', 'permissions']);
     }
 
@@ -28,11 +29,11 @@ class RoleDataTable implements DataTableDefinition
 
             TextColumn::make('users_count')
                 ->label('Jumlah User')
-                ->computed(fn ($row) => $row->users_count ?? 0),
+                ->computed(fn($row) => $row->users_count ?? 0),
 
             TextColumn::make('permissions_count')
                 ->label('Jumlah Permission')
-                ->computed(fn ($row) => $row->name === 'Super Admin' ? 'Semua (Bypass)' : ($row->permissions_count ?? 0)),
+                ->computed(fn($row) => $row->name === 'Super Admin' ? 'Semua (Bypass)' : ($row->permissions_count ?? 0)),
 
             DateColumn::make('created_at')
                 ->label('Dibuat Pada')

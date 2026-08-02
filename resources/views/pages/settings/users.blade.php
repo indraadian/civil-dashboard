@@ -145,7 +145,7 @@
                                                         :value="rtItem.id" x-model="scope.selected_rt_ids"
                                                         :disabled="scope.all_rts" class="rounded text-brand-500" />
                                                     <span class="text-gray-800 dark:text-white" x-text="'RT ' + rtItem.code + (rtItem.name ? ' (' + rtItem.name
-                                                                    + ')' : '' )"></span>
+                                                                        + ')' : '' )"></span>
                                                 </label>
                                             </template>
                                         </div>
@@ -214,7 +214,8 @@
                 </div>
 
                 {{-- Scope Wilayah Section --}}
-                <div x-show="role.toLowerCase() === 'user'" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div x-show="role.toLowerCase() != 'admin' && role.toLowerCase() != 'super admin'"
+                    class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <label class="text-sm font-semibold text-gray-800 dark:text-white">Pengaturan Hak Akses
                             Wilayah</label>
