@@ -11,6 +11,7 @@ use App\DataTables\Columns\TextColumn;
 use App\DataTables\Contracts\DataTableDefinition;
 use App\DataTables\Filters\SelectFilter;
 use App\DataTables\Filters\TextFilter;
+use App\Models\Candidate;
 use App\Models\QuickCount;
 use App\Models\Tps;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +27,7 @@ class QuickCountDataTable implements DataTableDefinition
 
     public function columns(): array
     {
-        return [
+        $columns = [
             TextColumn::make('tps.name')
                 ->label('TPS'),
 
@@ -42,7 +43,17 @@ class QuickCountDataTable implements DataTableDefinition
                 ->label('Waktu Input')
                 ->format('d M Y H:i')
                 ->sortable(),
+        ];
 
+        $candidates = Candidate::where('is_active', true)->orderBy('number')->get();
+
+        foreach ($candidates as $candidate) {
+            $columns[] = TextColumn::make('candidate_vote_' . $candidate->id)
+                ->label('Calon ' . $candidate->number)
+                ->computed(fn($row) => number_format($row->details->firstWhere('candidate_id', $candidate->id)?->vote_count ?? 0, 0, ',', '.'));
+        }
+
+        return array_merge($columns, [
             TextColumn::make('valid_votes')
                 ->label('Suara Sah')
                 ->computed(fn($row) => number_format($row->details->sum('vote_count'), 0, ',', '.')),
@@ -64,7 +75,7 @@ class QuickCountDataTable implements DataTableDefinition
                 ->sortable(),
 
             ActionColumn::make(),
-        ];
+        ]);
     }
 
     public function filters(): array
