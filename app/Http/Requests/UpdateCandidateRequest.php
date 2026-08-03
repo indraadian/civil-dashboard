@@ -14,14 +14,15 @@ class UpdateCandidateRequest extends FormRequest
 
     public function rules(): array
     {
-        $candidateId = $this->route('candidate')?->id ?? $this->input('id');
+        $param = $this->route('candidate');
+        $candidateId = is_object($param) ? $param->id : ($param ?? $this->input('id'));
 
         return [
             'number' => [
                 'required',
                 'integer',
                 'min:1',
-                Rule::unique('candidates', 'number')->ignore($candidateId),
+                Rule::unique('candidates', 'number')->ignore($candidateId)->whereNull('deleted_at'),
             ],
             'name' => ['required', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],

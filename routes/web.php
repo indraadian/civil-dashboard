@@ -286,6 +286,22 @@ Route::middleware(['auth'])->group(function () {
     // Maintenance / System routes
     Route::get('/link-storage', [SettingController::class, 'linkStorage'])->name('link-storage');
 
+    // Fallback route for storage files (serves files directly if symlink fails on shared hosting)
+    // Route::get('/storage/{path}', function (string $path) {
+    //     $filePath = storage_path('app/public/' . $path);
+
+    //     if (! file_exists($filePath)) {
+    //         abort(404);
+    //     }
+
+    //     $type = @mime_content_type($filePath) ?: 'application/octet-stream';
+
+    //     return response()->file($filePath, [
+    //         'Content-Type' => $type,
+    //         'Cache-Control' => 'public, max-age=86400',
+    //     ]);
+    // })->where('path', '.*')->name('storage.fallback');
+
     Route::middleware('permission:migration.run')->group(function () {
         Route::get('/settings/general', [SettingController::class, 'general'])->name('settings.general');
         Route::post('/settings/migrate', [SettingController::class, 'migrate'])->name('settings.migrate');
