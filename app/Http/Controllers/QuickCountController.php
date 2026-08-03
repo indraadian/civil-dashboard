@@ -39,13 +39,15 @@ class QuickCountController extends Controller
         $tpsSudahInput = $inputtedTpsIds->count();
         $tpsBelumInput = max(0, $totalTpsCount - $tpsSudahInput);
 
-        $totalSuaraSah = (int) QuickCountDetail::sum('vote_count');
+        $totalSuaraSah = (int) QuickCountDetail::whereHas('quickCount')->whereHas('candidate')->sum('vote_count');
         $totalSuaraTidakSah = (int) QuickCount::sum('invalid_votes');
         $totalPemilih = (int) QuickCount::sum('total_voters');
         $progressPercentage = $totalTpsCount > 0 ? round(($tpsSudahInput / $totalTpsCount) * 100, 1) : 0;
 
         // Grouped votes per candidate
-        $candidateVotesMap = QuickCountDetail::select('candidate_id', DB::raw('SUM(vote_count) as total_votes'))
+        $candidateVotesMap = QuickCountDetail::whereHas('quickCount')
+            ->whereHas('candidate')
+            ->select('candidate_id', DB::raw('SUM(vote_count) as total_votes'))
             ->groupBy('candidate_id')
             ->pluck('total_votes', 'candidate_id')
             ->toArray();
@@ -76,6 +78,15 @@ class QuickCountController extends Controller
     {
         DB::transaction(function () use ($request) {
             $data = $request->validated();
+
+            $existing = QuickCount::withTrashed()->where('tps_id', $data['tps_id'])->first();
+            if ($existing) {
+                if ($existing->c1_photo) {
+                    Storage::disk('public')->delete($existing->c1_photo);
+                }
+                $existing->details()->delete();
+                $existing->forceDelete();
+            }
 
             $photoPath = null;
             if ($request->hasFile('c1_photo')) {
@@ -166,5 +177,64 @@ class QuickCountController extends Controller
 
         return redirect()->route('quick-counts.index')
             ->with('success', 'Data Quick Count berhasil dihapus.');
+    }
+
+    /**
+     * Delete multiple Quick Count records in bulk.
+     */
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer'],
+        ]);
+
+        $quickCounts = QuickCount::whereIn('id', $request->ids)->get();
+
+        foreach ($quickCounts as $quickCount) {
+            if ($quickCount->c1_photo) {
+                Storage::disk('public')->delete($quickCount->c1_photo);
+            }
+            $quickCount->delete();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data Quick Count terpilih berhasil dihapus',
+        ]);
+    }
+
+    /**
+     * Export Quick Count data.
+     */
+    public function export(Request $request): RedirectResponse
+    {
+        $export = $this->exportService->initiate(
+            userId: $request->user()->id,
+            filters: $request->all(),
+            format: $request->input('format', 'xlsx')
+        );
+
+        return back()->with(
+            'info',
+            "File export Quick Count sedang dibuat di background. ID Export: #{$export->id}."
+        );
+    }
+
+    /**
+     * Import Quick Count data from CSV/Excel file.
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:5120'],
+        ]);
+
+        $import = $this->importService->initiate($request);
+
+        return back()->with(
+            'info',
+            "File import Quick Count sedang diproses di background. ID Import: #{$import->id}."
+        );
     }
 }

@@ -284,10 +284,13 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Maintenance / System routes
+    Route::get('/link-storage', [SettingController::class, 'linkStorage'])->name('link-storage');
+
     Route::middleware('permission:migration.run')->group(function () {
         Route::get('/settings/general', [SettingController::class, 'general'])->name('settings.general');
         Route::post('/settings/migrate', [SettingController::class, 'migrate'])->name('settings.migrate');
         Route::post('/settings/patch-locations', [SettingController::class, 'patchLocations'])->name('settings.patch-locations');
         Route::post('/settings/sync-roles-permissions', [SettingController::class, 'syncRolesPermissions'])->name('settings.sync-roles-permissions');
+        Route::post('/settings/link-storage', [SettingController::class, 'linkStorage'])->name('settings.link-storage');
     });
 });

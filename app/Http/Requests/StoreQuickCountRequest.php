@@ -14,7 +14,11 @@ class StoreQuickCountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tps_id' => ['required', 'exists:tps,id', 'unique:quick_counts,tps_id'],
+            'tps_id' => [
+                'required',
+                'exists:tps,id',
+                \Illuminate\Validation\Rule::unique('quick_counts', 'tps_id')->whereNull('deleted_at'),
+            ],
             'officer_name' => ['required', 'string', 'max:255'],
             'officer_phone' => ['required', 'string', 'max:50'],
             'c1_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],

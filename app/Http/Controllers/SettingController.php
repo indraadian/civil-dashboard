@@ -233,6 +233,37 @@ class SettingController extends Controller
     }
 
     /**
+     * Buat storage link (public/storage -> storage/app/public).
+     */
+    public function linkStorage(): RedirectResponse
+    {
+        try {
+            $target = storage_path('app/public');
+            $shortcut = public_path('storage');
+
+            if (! file_exists($target)) {
+                mkdir($target, 0755, true);
+            }
+
+            if (file_exists($shortcut)) {
+                return back()->with('info', 'Storage link sudah ada pada folder public/storage.');
+            }
+
+            @symlink($target, $shortcut);
+
+            if (! file_exists($shortcut)) {
+                Artisan::call('storage:link');
+            }
+
+            return back()->with('success', 'Storage link berhasil dibuat! Foto publik sekarang sudah dapat diakses.');
+        } catch (\Throwable $e) {
+            Log::error('Storage link creation failed.', ['message' => $e->getMessage()]);
+
+            return back()->with('error', 'Gagal membuat storage link: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Export User data.
      */
     public function exportUsers(Request $request, \App\Services\UserExportService $exportService): RedirectResponse
