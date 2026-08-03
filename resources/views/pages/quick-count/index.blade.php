@@ -320,9 +320,21 @@
                     <input type="file" name="c1_photo" accept="image/*"
                         @change="const file = $event.target.files[0]; if (file) { previewUrl = URL.createObjectURL(file); }"
                         class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-gray-800 dark:file:text-gray-300" />
-                    <div x-show="previewUrl" class="mt-3">
-                        <p class="text-xs text-gray-500 mb-1">Foto C1 Preview:</p>
-                        <img :src="previewUrl" class="h-32 w-auto max-w-full rounded-lg border border-gray-200 object-cover dark:border-gray-700" />
+                    <div x-show="previewUrl" class="mt-3 flex items-end gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Foto C1 Preview:</p>
+                            <img :src="previewUrl" class="h-32 w-auto max-w-full rounded-lg border border-gray-200 object-cover dark:border-gray-700" />
+                        </div>
+                        @canany(['quick-count.export', 'quick-count.view'])
+                            <template x-if="formData.c1_photo_url">
+                                <a :href="formData.c1_photo_url" download target="_blank" class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Unduh Foto C1
+                                </a>
+                            </template>
+                        @endcanany
                     </div>
                 </div>
 
