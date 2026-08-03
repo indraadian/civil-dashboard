@@ -286,11 +286,34 @@ Route::middleware(['auth'])->group(function () {
     // Maintenance / System routes
     Route::get('/link-storage', [SettingController::class, 'linkStorage'])->name('link-storage');
 
-    // Fallback route for storage files (serves files directly if symlink fails on shared hosting)
-    Route::get('/storage/{path}', function (string $path) {
-        $filePath = storage_path('app/public/' . $path);
+    // Fallback route for storage & upload files (serves files directly if symlink/direct access is blocked on shared hosting)
+    Route::get('/uploads/{path}', function (string $path) {
+        $filePath = public_path('uploads/' . $path);
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
+            $filePath = storage_path('app/public/' . $path);
+        }
+
+        if (! file_exists($filePath)) {
+            abort(404);
+        }
+
+        $type = @mime_content_type($filePath) ?: 'application/octet-stream';
+
+        return response()->file($filePath, [
+            'Content-Type' => $type,
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    })->where('path', '.*')->name('uploads.fallback');
+
+    Route::get('/storage/{path}', function (string $path) {
+        $filePath = public_path('uploads/' . $path);
+
+        if (! file_exists($filePath)) {
+            $filePath = storage_path('app/public/' . $path);
+        }
+
+        if (! file_exists($filePath)) {
             abort(404);
         }
 

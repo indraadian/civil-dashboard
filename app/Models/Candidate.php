@@ -45,6 +45,10 @@ class Candidate extends Model
             return $this->photo;
         }
 
+        if (file_exists(public_path('uploads/' . $this->photo))) {
+            return asset('uploads/' . $this->photo);
+        }
+
         return Storage::disk('public')->url($this->photo);
     }
 }

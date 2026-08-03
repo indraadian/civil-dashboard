@@ -73,6 +73,10 @@ class QuickCount extends Model
             return $this->c1_photo;
         }
 
+        if (file_exists(public_path('uploads/' . $this->c1_photo))) {
+            return asset('uploads/' . $this->c1_photo);
+        }
+
         return Storage::disk('public')->url($this->c1_photo);
     }
 
