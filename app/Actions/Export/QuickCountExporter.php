@@ -2,28 +2,59 @@
 
 namespace App\Actions\Export;
 
+use App\Models\Candidate;
 use App\Models\QuickCount;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class QuickCountExporter implements ExporterInterface
 {
+    private array $candidates = [];
+
+    public function __construct()
+    {
+        $this->candidates = Candidate::where('is_active', true)->orderBy('number')->get()->all();
+    }
+
     public function getHeadings(): array
     {
-        return [
+        $headings = [
             'Kode TPS',
             'Nama TPS',
-            'Perolehan Suara',
-            'Total DPT',
-            'Persentase Suara (%)',
-            'Catatan',
-            'Petugas Input',
+            'Nama Petugas',
+            'No. HP',
+            'Waktu Input',
         ];
+
+        foreach ($this->candidates as $candidate) {
+            $headings[] = 'Paslon ' . $candidate->number . ' (' . $candidate->name . ')';
+        }
+
+        return array_merge($headings, [
+            'Suara Sah',
+            'Suara Tidak Sah',
+            'Total Pemilih',
+            'Foto C1',
+            'Catatan',
+            'Dibuat Oleh',
+        ]);
     }
 
     public function buildQuery(array $filters = []): Builder
     {
-        return QuickCount::with(['tps', 'creator'])->latest();
+        $query = QuickCount::query()
+            ->with(['tps', 'creator', 'details'])
+            ->forCurrentUser();
+
+        if (!empty($filters['tps_id'])) {
+            $query->where('tps_id', $filters['tps_id']);
+        }
+
+        if (!empty($filters['officer_name'])) {
+            $query->where('officer_name', 'like', '%' . $filters['officer_name'] . '%');
+        }
+
+        return $query->latest();
     }
 
     public function mapRow(Model $model): array
@@ -31,18 +62,28 @@ class QuickCountExporter implements ExporterInterface
         /** @var QuickCount $qc */
         $qc = $model;
 
-        $votes = $qc->vote_count ?? 0;
-        $total = $qc->total_voters ?? 0;
-        $percent = $total > 0 ? round(($votes / $total) * 100, 1) : 0;
-
-        return [
+        $row = [
             $qc->tps?->code ?? '-',
             $qc->tps?->name ?? '-',
-            $votes,
-            $total,
-            $percent . '%',
+            $qc->officer_name ?? '-',
+            $qc->officer_phone ?? '-',
+            $qc->input_at ? $qc->input_at->format('Y-m-d H:i:s') : '-',
+        ];
+
+        foreach ($this->candidates as $candidate) {
+            $detail = $qc->details->firstWhere('candidate_id', $candidate->id);
+            $row[] = $detail ? $detail->vote_count : 0;
+        }
+
+        $validVotes = (int) $qc->details->sum('vote_count');
+
+        return array_merge($row, [
+            $validVotes,
+            (int) $qc->invalid_votes,
+            (int) $qc->total_voters,
+            $qc->c1_photo_url ?? '-',
             $qc->notes ?? '-',
             $qc->creator?->name ?? '-',
-        ];
+        ]);
     }
 }

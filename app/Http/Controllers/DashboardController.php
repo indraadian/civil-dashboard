@@ -33,12 +33,14 @@ class DashboardController extends Controller
         $tpsSudahInput = $inputtedTpsIds->count();
         $tpsBelumInput = max(0, $totalTpsCount - $tpsSudahInput);
 
-        $totalSuaraSah = (int) QuickCountDetail::sum('vote_count');
+        $totalSuaraSah = (int) QuickCountDetail::whereHas('quickCount')->whereHas('candidate')->sum('vote_count');
         $totalSuaraTidakSah = (int) QuickCount::sum('invalid_votes');
         $totalPemilih = (int) QuickCount::sum('total_voters');
         $progressPercentage = $totalTpsCount > 0 ? round(($tpsSudahInput / $totalTpsCount) * 100, 1) : 0;
 
-        $candidateVotesMap = QuickCountDetail::select('candidate_id', DB::raw('SUM(vote_count) as total_votes'))
+        $candidateVotesMap = QuickCountDetail::whereHas('quickCount')
+            ->whereHas('candidate')
+            ->select('candidate_id', DB::raw('SUM(vote_count) as total_votes'))
             ->groupBy('candidate_id')
             ->pluck('total_votes', 'candidate_id')
             ->toArray();
@@ -86,12 +88,14 @@ class DashboardController extends Controller
         $inputtedTpsIds = QuickCount::distinct('tps_id')->pluck('tps_id');
         $tpsSudahInput = $inputtedTpsIds->count();
         $tpsBelumInput = max(0, $totalTpsCount - $tpsSudahInput);
-        $totalSuaraSah = (int) QuickCountDetail::sum('vote_count');
+        $totalSuaraSah = (int) QuickCountDetail::whereHas('quickCount')->whereHas('candidate')->sum('vote_count');
         $totalSuaraTidakSah = (int) QuickCount::sum('invalid_votes');
         $totalPemilih = (int) QuickCount::sum('total_voters');
         $progressPercentage = $totalTpsCount > 0 ? round(($tpsSudahInput / $totalTpsCount) * 100, 1) : 0;
 
-        $candidateVotesMap = QuickCountDetail::select('candidate_id', DB::raw('SUM(vote_count) as total_votes'))
+        $candidateVotesMap = QuickCountDetail::whereHas('quickCount')
+            ->whereHas('candidate')
+            ->select('candidate_id', DB::raw('SUM(vote_count) as total_votes'))
             ->groupBy('candidate_id')
             ->pluck('total_votes', 'candidate_id')
             ->toArray();

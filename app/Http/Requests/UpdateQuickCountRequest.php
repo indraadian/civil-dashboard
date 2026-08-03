@@ -14,13 +14,14 @@ class UpdateQuickCountRequest extends FormRequest
 
     public function rules(): array
     {
-        $quickCountId = $this->route('quick_count')?->id ?? $this->input('id');
+        $param = $this->route('quickCount') ?? $this->route('quick_count');
+        $quickCountId = is_object($param) ? $param->id : ($param ?? $this->input('id'));
 
         return [
             'tps_id' => [
                 'required',
                 'exists:tps,id',
-                Rule::unique('quick_counts', 'tps_id')->ignore($quickCountId),
+                Rule::unique('quick_counts', 'tps_id')->ignore($quickCountId)->whereNull('deleted_at'),
             ],
             'officer_name' => ['required', 'string', 'max:255'],
             'officer_phone' => ['required', 'string', 'max:50'],
