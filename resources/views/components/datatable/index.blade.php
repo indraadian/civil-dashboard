@@ -303,14 +303,32 @@
                                              @click.away="modalOpen = false"
                                              @keydown.escape.window="modalOpen = false"
                                              class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs">
-                                            <div class="relative max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white p-2 dark:bg-gray-900">
-                                                <button @click="modalOpen = false" class="absolute top-4 right-4 z-10 rounded-full bg-gray-800/60 p-2 text-white hover:bg-gray-800">
-                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                                <img :src="row['{{ $column['field'] }}__url'] || row['{{ $column['field'] }}']"
-                                                     class="max-h-[80vh] w-auto max-w-full rounded-xl object-contain mx-auto" />
+                                            <div class="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white p-4 dark:bg-gray-900 shadow-2xl">
+                                                <div class="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
+                                                    <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Pratinjau Foto</h5>
+                                                    <div class="flex items-center gap-2">
+                                                        @canany(['quick-count.export', 'quick-count.view', 'candidate.view', 'civil.view', 'civil.export'])
+                                                            <a :href="row['{{ $column['field'] }}__url'] || row['{{ $column['field'] }}']"
+                                                               download
+                                                               target="_blank"
+                                                               class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 shadow-xs transition">
+                                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                                </svg>
+                                                                Unduh Foto
+                                                            </a>
+                                                        @endcanany
+                                                        <button @click="modalOpen = false" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-center items-center overflow-auto max-h-[75vh]">
+                                                    <img :src="row['{{ $column['field'] }}__url'] || row['{{ $column['field'] }}']"
+                                                         class="max-h-[70vh] w-auto max-w-full rounded-xl object-contain" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
