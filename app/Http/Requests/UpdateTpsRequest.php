@@ -14,11 +14,12 @@ class UpdateTpsRequest extends FormRequest
 
     public function rules(): array
     {
-        $tpsId = $this->route('tps')?->id ?? $this->route('tp');
+        $param = $this->route('tps') ?? $this->route('tp');
+        $tpsId = is_object($param) ? $param->id : ($param ?? $this->input('id'));
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['nullable', 'string', 'max:50', Rule::unique('tps', 'code')->ignore($tpsId)],
+            'code' => ['nullable', 'string', 'max:50', Rule::unique('tps', 'code')->ignore($tpsId)->whereNull('deleted_at')],
             'location' => ['nullable', 'string', 'max:500'],
             'total_voters' => ['required', 'integer', 'min:0'],
         ];
